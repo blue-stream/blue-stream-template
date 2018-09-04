@@ -11,15 +11,17 @@ import { sign } from 'jsonwebtoken';
 
 describe('FeatureName Module', function () {
     let server: Server;
-    // <MongoDB>
     const validProppertyString: string = '12345';
-    const invalidProppertyString: string = '123456789123456789';
-    const invalidId: string = '1';
-    const authorizationHeader = `Bearer ${sign('mock-user', config.authentication.secret)}`;
-
     const featureName: IFeatureName = {
         property: validProppertyString,
     };
+    const authorizationHeader = `Bearer ${sign('mock-user', config.authentication.secret)}`;
+    const invalidId: string = '1';
+    const invalidProppertyString: string = '123456789123456789';
+    const invalidFeatureName: IFeatureName = {
+        property: invalidProppertyString,
+    };
+    // <MongoDB>
 
     const featureName2: IFeatureName = {
         property: '45678',
@@ -30,10 +32,6 @@ describe('FeatureName Module', function () {
 
     const unexistingFeatureName: IFeatureName = {
         property: 'a',
-    };
-
-    const invalidFeatureName: IFeatureName = {
-        property: invalidProppertyString,
     };
 
     const featureNames: IFeatureName[] =
