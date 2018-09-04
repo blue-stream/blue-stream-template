@@ -1,4 +1,11 @@
 import * as llama from 'llamajs';
+import { config } from '../config';
+
+interface LogMessage extends llama.LogMessage {
+    timestamp: Date;
+    description: string;
+    hostname: string;
+}
 
 export class Logger {
     private static logger: llama.Logger;
@@ -30,9 +37,16 @@ export class Logger {
         Logger.logger = new llama.Logger(config);
     }
 
-    public static log(message: llama.LogMessage) {
-        const rabbitMqTopicKey: string = `${message.severity}.${message.name}`;
+    public static log(severity: llama.SeverityLevel, name: string, description: string) {
+        const message: LogMessage = {
+            severity,
+            name,
+            description,
+            timestamp: new Date(),
+            hostname: config.server.name,
+        };
+        const rabbitMqTopicKey: string = `${message.severity}.${message.name}.${message.hostname}`;
+
         Logger.logger.log(message, { routingKey: rabbitMqTopicKey } as llama.RabbitMqMessageConfig);
     }
-
 }
