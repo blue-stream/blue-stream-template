@@ -12,29 +12,29 @@ export class Logger {
 
     public static configure() {
         const rabbitTransport: llama.RabbitMqTransport = new llama.RabbitMqTransport({
-            durable: false,
-            exchanegType: 'topic',
-            exchange: 'blue_stream_logs',
+            durable: config.logger.durable,
+            exchanegType: config.logger.exchangeType,
+            exchange: config.logger.exchange,
             format: new llama.JsonFormat({}),
-            host: 'localhost',
-            port: 15672,
+            host: config.logger.host,
+            port: config.logger.port,
             levels: [
                 llama.syslogSeverityLevels.Informational,
                 llama.syslogSeverityLevels.Warning,
                 llama.syslogSeverityLevels.Error,
                 llama.syslogSeverityLevels.Emergency,
             ],
-            password: 'guest',
-            username: 'guest',
-            persistent: false,
+            password: config.logger.password,
+            username: config.logger.username,
+            persistent: config.logger.persistent,
         } as llama.RabbitMqConfig);
 
-        const config: llama.LoggerConfig = {
+        const llamaConfig: llama.LoggerConfig = {
             levels: llama.syslogSeverityLevels,
             transports: [rabbitTransport],
         };
 
-        Logger.logger = new llama.Logger(config);
+        Logger.logger = new llama.Logger(llamaConfig);
     }
 
     public static log(severity: llama.SeverityLevel, name: string, description: string) {

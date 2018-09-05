@@ -3,20 +3,29 @@ export type Configuration = {
         host: string;
         name: string;
         port: number;
-    },
+    };
+    logger: {
+        durable: boolean;
+        exchangeType: string;
+        exchange: string;
+        host: string;
+        port: number;
+        password: string;
+        username: string;
+        persistent: boolean;
+    };
     rabbitMQ: {
         host: string;
         exchanges: {
-            logger: string;
             featureNameReceiver: string;
             featureNamePublisher: string;
         };
         reconnect_timeout: number;
-    }
+    };
     server: {
         port: number,
         name: string,
-    },
+    };
     authentication: {
         required: boolean;
         secret: string;
@@ -29,10 +38,19 @@ const development: Configuration = {
         name: process.env.DB_NAME || 'blue-stream-template',
         port: 27017,
     },
+    logger: {
+        durable: false,
+        exchangeType: 'topic' || process.env.RMQ_LOGGER_TYPE,
+        exchange: 'blue_stream_logs' || process.env.RMQ_LOGGER_EXCHANGE,
+        host: 'localhost' || process.env.RMQ_LOGGER_HOST,
+        port: 15672 || process.env.RMQ_LOGGER_PORT,
+        password: 'guest' || process.env.RMQ_LOGGER_PASS,
+        username: 'guest' || process.env.RMQ_LOGGER_USER,
+        persistent: false,
+    },
     rabbitMQ: {
         host: 'localhost',
         exchanges: {
-            logger: 'logs',
             featureNameReceiver: 'featureName',
             featureNamePublisher: 'featureName',
         },
@@ -54,10 +72,19 @@ const production: Configuration = {
         name: process.env.DB_NAME || 'blue-stream-template',
         port: 27017,
     },
+    logger: {
+        durable: false,
+        exchangeType: 'topic' || process.env.RMQ_LOGGER_TYPE,
+        exchange: 'blue_stream_logs' || process.env.RMQ_LOGGER_EXCHANGE,
+        host: 'localhost' || process.env.RMQ_LOGGER_HOST,
+        port: 15672 || process.env.RMQ_LOGGER_PORT,
+        password: 'guest' || process.env.RMQ_LOGGER_PASS,
+        username: 'guest' || process.env.RMQ_LOGGER_USER,
+        persistent: false,
+    },
     rabbitMQ: {
         host: 'localhost',
         exchanges: {
-            logger: 'logs',
             featureNameReceiver: 'featureName',
             featureNamePublisher: 'featureName',
         },
@@ -79,10 +106,19 @@ const test: Configuration = {
         name: process.env.DB_NAME || 'blue-stream-template-test',
         port: 27017,
     },
+    logger: {
+        durable: false,
+        exchangeType: 'topic' || process.env.RMQ_LOGGER_TYPE,
+        exchange: 'blue_stream_logs' || process.env.RMQ_LOGGER_EXCHANGE,
+        host: 'localhost' || process.env.RMQ_LOGGER_HOST,
+        port: 15672 || process.env.RMQ_LOGGER_PORT,
+        password: 'guest' || process.env.RMQ_LOGGER_PASS,
+        username: 'guest' || process.env.RMQ_LOGGER_USER,
+        persistent: false,
+    },
     rabbitMQ: {
         host: 'localhost',
         exchanges: {
-            logger: 'logs',
             featureNameReceiver: 'featureName',
             featureNamePublisher: 'featureName',
         },
