@@ -1,42 +1,56 @@
-import { RabbitMQ } from './rabbitMQ';
+import * as llama from 'llamajs';
 import { config } from '../config';
 
-export enum SeverityType {
-    Info        = 'INFO',
-    Warning     = 'WARNING',
-    Critical    = 'CRITICAL',
-}
-
-export enum MessageType {
-    Error = 'ERROR',
-    Event = 'EVENT',
-}
-
-type LogMessage = {
-    name: string;
+interface LogMessage extends llama.LogMessage {
+    timestamp: Date;
     description: string;
-    messageType: MessageType;
-    severity: SeverityType;
-    serviceName: string;
-};
+    hostname: string;
+}
 
 export class Logger {
+    private static logger: llama.Logger;
 
-    static rabbitMQ: RabbitMQ = new RabbitMQ(config.rabbitMQ.exchanges.logger);
+    public static configure() {
+        const rabbitTransport: llama.RabbitMqTransport = new llama.RabbitMqTransport({
+            durable: config.logger.durable,
+            exchanegType: config.logger.exchangeType,
+            exchange: config.logger.exchange,
+            format: new llama.JsonFormat({}),
+            host: config.logger.host,
+            port: config.logger.port,
+            levels: [
+                llama.syslogSeverityLevels.Informational,
+                llama.syslogSeverityLevels.Warning,
+                llama.syslogSeverityLevels.Error,
+                llama.syslogSeverityLevels.Emergency,
+            ],
+            password: config.logger.password,
+            username: config.logger.username,
+            persistent: config.logger.persistent,
+        } as llama.RabbitMqConfig);
 
-    public static start(): Promise<void> {
-        return Logger.rabbitMQ.startPublisher();
-    }
-
-    public static log(name: string, severity: SeverityType, messageType: MessageType, description: string = '') {
-        const logMessage: LogMessage = {
-            name,
-            description,
-            messageType,
-            severity,
-            serviceName: config.server.name,
+        const llamaConfig: llama.LoggerConfig = {
+            levels: llama.syslogSeverityLevels,
+            transports: [rabbitTransport],
         };
 
-        Logger.rabbitMQ.publish('', JSON.stringify(logMessage));
+        Logger.logger = new llama.Logger(llamaConfig);
+    }
+
+    public static log(severity: llama.SeverityLevel, name: string, description: string) {
+        if (!Logger.logger) {
+            Logger.configure();
+        }
+
+        const message: LogMessage = {
+            severity,
+            name,
+            description,
+            timestamp: new Date(),
+            hostname: config.server.name,
+        };
+        const rabbitMqTopicKey: string = `${message.severity}.${message.name}.${message.hostname}`;
+
+        Logger.logger.log(message, { routingKey: rabbitMqTopicKey } as llama.RabbitMqMessageConfig);
     }
 }

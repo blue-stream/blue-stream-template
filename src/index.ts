@@ -1,8 +1,10 @@
 import * as mongoose from 'mongoose';
 import { Server } from './server';
 import { RabbitMQ } from './utils/rabbitMQ';
-import { Logger, SeverityType, MessageType } from './utils/logger';
+import { Logger } from './utils/logger';
 import { config } from './config';
+import { syslogSeverityLevels } from 'llamajs';
+
 // <RabbitMQ>
 import { FeatureNameService } from './FEATURE_NAME/FEATURE_NAME.broker';
 // </RabbitMQ>
@@ -41,8 +43,8 @@ process.on('SIGINT', async () => {
     // </MongoDB>
 
     const connection = await RabbitMQ.connect();
-    await Logger.start();
-    Logger.log('Service started', SeverityType.Info, MessageType.Event, `Port ${config.server.port}`);
+    Logger.configure();
+    Logger.log(syslogSeverityLevels.Informational, 'Server Started', `Port: ${config.server.port}`);
 
     // <RabbitMQ>
     await FeatureNameService.startReceiver();
