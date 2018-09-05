@@ -38,6 +38,10 @@ export class Logger {
     }
 
     public static log(severity: llama.SeverityLevel, name: string, description: string) {
+        if (!Logger.logger) {
+            Logger.configure();
+        }
+
         const message: LogMessage = {
             severity,
             name,
