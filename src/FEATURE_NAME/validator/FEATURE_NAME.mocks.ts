@@ -4,6 +4,7 @@ import { sign } from 'jsonwebtoken';
 import { config } from '../../config';
 
 export const responseMock = createResponse();
+const validProperty: string = '12345';
 
 export class ValidRequestMocks {
 
@@ -17,7 +18,7 @@ export class ValidRequestMocks {
         },
         body: {
             featureName: {
-                property: '12345',
+                property: validProperty,
             },
         },
     });
@@ -30,13 +31,13 @@ export class ValidRequestMocks {
         },
         body: {
             featureNames: [{
-                property: '12345',
+                property: validProperty,
             },
             {
-                property: '34567',
+                property: validProperty,
             },
             {
-                property: '56789',
+                property: validProperty,
             }],
         },
     });
@@ -49,10 +50,10 @@ export class ValidRequestMocks {
         },
         body: {
             featureNameFilter: {
-                property: '12345',
+                property: validProperty,
             },
             featureName: {
-                property: '12345',
+                property: validProperty,
             },
         },
     });
@@ -68,7 +69,7 @@ export class ValidRequestMocks {
         },
         body: {
             featureName: {
-                property: '12345',
+                property: validProperty,
             },
         },
     });
@@ -86,34 +87,34 @@ export class ValidRequestMocks {
 
     getOne = createRequest({
         method: 'GET',
-        url: `/api/featureName/one?featureNameFilter={'property':'12345'}`,
+        url: `/api/featureName/one?featureNameFilter={'property':${validProperty}}`,
         headers: {
             authorization: this.authorizationHeader,
         },
         query: {
-            property: '12345',
+            property: validProperty,
         },
     });
 
     getMany = createRequest({
         method: 'GET',
-        url: `/api/featureName/many?featureNameFilter={'property':'12345'}`,
+        url: `/api/featureName/many?featureNameFilter={'property':${validProperty}}`,
         headers: {
             authorization: this.authorizationHeader,
         },
         query: {
-            property: '12345',
+            property: validProperty,
         },
     });
 
     getAmount = createRequest({
         method: 'GET',
-        url: `/api/featureName/amount?featureNameFilter={'property':'12345'}`,
+        url: `/api/featureName/amount?featureNameFilter={'property':${validProperty}}`,
         headers: {
             authorization: this.authorizationHeader,
         },
         query: {
-            property: '12345',
+            property: validProperty,
         },
     });
 
