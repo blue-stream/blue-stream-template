@@ -4,9 +4,15 @@ import { sign } from 'jsonwebtoken';
 import { config } from '../../config';
 
 export const responseMock = createResponse();
-const validProperty: string = '12345';
 
 export class ValidRequestMocks {
+    readonly validProperty: string = '12345';
+
+    readonly featureName = {
+        property: this.validProperty,
+    };
+
+    readonly featureNameFilter = this.featureName;
 
     authorizationHeader = `Bearer ${sign('mock-user', config.authentication.secret)}`;
 
@@ -17,9 +23,7 @@ export class ValidRequestMocks {
             authorization: this.authorizationHeader,
         },
         body: {
-            featureName: {
-                property: validProperty,
-            },
+            featureName: this.featureName,
         },
     });
 
@@ -30,15 +34,11 @@ export class ValidRequestMocks {
             authorization: this.authorizationHeader,
         },
         body: {
-            featureNames: [{
-                property: validProperty,
-            },
-            {
-                property: validProperty,
-            },
-            {
-                property: validProperty,
-            }],
+            featureNames: [
+                this.featureName,
+                this.featureName,
+                this.featureName,
+            ],
         },
     });
 
@@ -49,12 +49,8 @@ export class ValidRequestMocks {
             authorization: this.authorizationHeader,
         },
         body: {
-            featureNameFilter: {
-                property: validProperty,
-            },
-            featureName: {
-                property: validProperty,
-            },
+            featureNameFilter: this.featureNameFilter,
+            featureName: this.featureName,
         },
     });
 
@@ -68,9 +64,7 @@ export class ValidRequestMocks {
             id: new Types.ObjectId(),
         },
         body: {
-            featureName: {
-                property: validProperty,
-            },
+            featureName: this.featureName,
         },
     });
 
@@ -87,35 +81,29 @@ export class ValidRequestMocks {
 
     getOne = createRequest({
         method: 'GET',
-        url: `/api/featureName/one?featureNameFilter={'property':${validProperty}}`,
+        url: `/api/featureName/one?featureNameFilter={'property':${this.validProperty}}`,
         headers: {
             authorization: this.authorizationHeader,
         },
-        query: {
-            property: validProperty,
-        },
+        query: this.featureName,
     });
 
     getMany = createRequest({
         method: 'GET',
-        url: `/api/featureName/many?featureNameFilter={'property':${validProperty}}`,
+        url: `/api/featureName/many?featureNameFilter={'property':${this.validProperty}}`,
         headers: {
             authorization: this.authorizationHeader,
         },
-        query: {
-            property: validProperty,
-        },
+        query: this.featureName,
     });
 
     getAmount = createRequest({
         method: 'GET',
-        url: `/api/featureName/amount?featureNameFilter={'property':${validProperty}}`,
+        url: `/api/featureName/amount?featureNameFilter={'property':${this.validProperty}}`,
         headers: {
             authorization: this.authorizationHeader,
         },
-        query: {
-            property: validProperty,
-        },
+        query: this.featureName,
     });
 
     getById = createRequest({
