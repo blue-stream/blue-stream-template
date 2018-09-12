@@ -7,9 +7,19 @@ export const responseMock = createResponse();
 
 export class ValidRequestMocks {
     readonly validProperty: string = '12345';
+    readonly validProperty2: string = '23456';
+    readonly validProperty3: string = '34567';
 
     readonly featureName = {
         property: this.validProperty,
+    };
+
+    readonly featureName2 = {
+        property: this.validProperty2,
+    };
+
+    readonly featureName3 = {
+        property: this.validProperty3,
     };
 
     readonly featureNameFilter = this.featureName;
@@ -36,8 +46,8 @@ export class ValidRequestMocks {
         body: {
             featureNames: [
                 this.featureName,
-                this.featureName,
-                this.featureName,
+                this.featureName2,
+                this.featureName3,
             ],
         },
     });
