@@ -3,8 +3,8 @@ import { config } from '../config';
 
 export class RabbitMQ {
     static amqpConnection: amqp.Connection;
-    amqpChannel!: amqp.Channel;
-    amqpExchange: string = '';
+    amqpChannel: amqp.Channel;
+    amqpExchange: string;
 
     constructor (exchange: string) {
         this.amqpExchange = exchange;
@@ -67,7 +67,7 @@ export class RabbitMQ {
                 console.log('[RabbitMQ Logger] channel closed');
             });
 
-            const queue = await channel.assertQueue('', { exclusive: true });
+            const queue = await channel.assertQueue(config.server.name, { durable: true });
             console.log(`[RabbitMQ] Waiting for messages in ${queue.queue} queue`);
             channel.bindQueue(queue.queue, this.amqpExchange, '');
             channel.consume(queue.queue, (message) => {
@@ -76,14 +76,13 @@ export class RabbitMQ {
                 }
             });
 
-            this.amqpExchange = this.amqpExchange;
             this.amqpChannel = channel;
         }
     }
 
-    publish(routingKey: string, message: string) {
+    publish(message: string) {
         try {
-            this.amqpChannel.publish(this.amqpExchange, routingKey, Buffer.from(message), { persistent: true });
+            this.amqpChannel.publish(this.amqpExchange, '', Buffer.from(message), { persistent: true });
         } catch (error) {
             console.error('[RabbitMQ Logger]', error.message);
         }

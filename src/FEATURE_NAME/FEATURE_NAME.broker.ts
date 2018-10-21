@@ -2,20 +2,20 @@
 import { RabbitMQ } from '../utils/rabbitMQ';
 import { config } from '../config';
 
-export class FeatureNameService {
+export class FeatureNameBroker {
     static rmqReceiver: RabbitMQ = new RabbitMQ(config.rabbitMQ.exchanges.featureNameReceiver);
     static rmqPublisher: RabbitMQ = new RabbitMQ(config.rabbitMQ.exchanges.featureNamePublisher);
 
     public static startReceiver() {
-        FeatureNameService.rmqReceiver.startReceiver(FeatureNameService.messageHandler);
+        FeatureNameBroker.rmqReceiver.startReceiver(FeatureNameBroker.messageHandler);
     }
 
     public static startPublisher() {
-        FeatureNameService.rmqPublisher.startPublisher();
+        FeatureNameBroker.rmqPublisher.startPublisher();
     }
 
-    public static publish(routingKey: string, message: string) {
-        FeatureNameService.rmqPublisher.publish(routingKey, message);
+    public static publish(message: string) {
+        FeatureNameBroker.rmqPublisher.publish(message);
     }
 
     private static messageHandler(message: string) {

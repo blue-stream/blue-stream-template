@@ -6,7 +6,7 @@ import { config } from './config';
 import { syslogSeverityLevels } from 'llamajs';
 
 // <RabbitMQ>
-import { FeatureNameService } from './FEATURE_NAME/FEATURE_NAME.broker';
+import { FeatureNameBroker } from './FEATURE_NAME/FEATURE_NAME.broker';
 // </RabbitMQ>
 
 process.on('uncaughtException', (err) => {
@@ -47,7 +47,8 @@ process.on('SIGINT', async () => {
     Logger.log(syslogSeverityLevels.Informational, 'Server Started', `Port: ${config.server.port}`);
 
     // <RabbitMQ>
-    await FeatureNameService.startReceiver();
+    await FeatureNameBroker.startReceiver();
+    await FeatureNameBroker.startPublisher();
     // </RabbitMQ>
 
     console.log('Starting server');
