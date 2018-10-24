@@ -2,12 +2,15 @@ import * as amqp from 'amqplib';
 import { config } from '../config';
 
 export class RabbitMQ {
-    static amqpConnection: amqp.Connection;
-    amqpChannel: amqp.Channel;
-    amqpExchange: string;
+    static connection: amqp.Connection;
+    
+    channel!: amqp.Channel;
+    exchange: string = '';
+    type: string = '';
 
-    constructor (exchange: string) {
-        this.amqpExchange = exchange;
+    constructor (exchange: string, type: string) {
+        this.exchange = exchange;
+        this.type = type;
     }
 
     public static async connect() {
@@ -26,18 +29,18 @@ export class RabbitMQ {
 
         console.log('[RabbitMQ] connected');
 
-        RabbitMQ.amqpConnection = connection;
+        RabbitMQ.connection = connection;
 
         return connection;
     }
 
-    public async startPublisher() {
-        if (!RabbitMQ.amqpConnection) {
+    public async start() {
+        if (!RabbitMQ.connection) {
             throw new Error('[RabbitMQ] connection is not open');
         } else {
-            const channel = await RabbitMQ.amqpConnection.createChannel();
+            const channel = await RabbitMQ.connection.createChannel();
 
-            channel.assertExchange(this.amqpExchange, 'fanout', { durable: true });
+            channel.assertExchange(this.exchange, this.type, { durable: true });
 
             channel.on('error', (error) => {
                 console.error('[RabbitMQ Logger] channel error', error.message);
@@ -47,42 +50,23 @@ export class RabbitMQ {
                 console.log('[RabbitMQ Logger] channel closed');
             });
 
-            this.amqpChannel = channel;
+
+            this.channel = channel;
         }
     }
 
-    public async startReceiver(messageHandler: (message: string) => void) {
-        if (!RabbitMQ.amqpConnection) {
-            throw new Error('[RabbitMQ] connection is not open');
-        } else {
-            const channel = await RabbitMQ.amqpConnection.createChannel();
-
-            channel.assertExchange(this.amqpExchange, 'fanout', { durable: true });
-
-            channel.on('error', (error) => {
-                console.error('[RabbitMQ Logger] channel error', error.message);
-            });
-
-            channel.on('close', () => {
-                console.log('[RabbitMQ Logger] channel closed');
-            });
-
-            const queue = await channel.assertQueue(config.server.name, { durable: true });
-            console.log(`[RabbitMQ] Waiting for messages in ${queue.queue} queue`);
-            channel.bindQueue(queue.queue, this.amqpExchange, '');
-            channel.consume(queue.queue, (message) => {
-                if (message) {
-                    messageHandler(message.content.toString());
-                }
-            });
-
-            this.amqpChannel = channel;
-        }
+    public async subscribe(bindingKey: string, messageHandler: (message: string) => void) {
+        const queue = await this.channel.assertQueue(config.server.name, { durable: true });
+        console.log(`[RabbitMQ] Waiting for messages in ${queue.queue} queue`);
+        this.channel.bindQueue(queue.queue, this.exchange, bindingKey);
+        this.channel.consume(queue.queue, (message) => {
+            messageHandler(message ? message.content.toString() : '');
+        });
     }
 
-    publish(message: string) {
+    publish(routingKey: string, message: string) {
         try {
-            this.amqpChannel.publish(this.amqpExchange, '', Buffer.from(message), { persistent: true });
+            this.channel.publish(this.exchange, routingKey, Buffer.from(message), { persistent: true });
         } catch (error) {
             console.error('[RabbitMQ Logger]', error.message);
         }
@@ -90,6 +74,6 @@ export class RabbitMQ {
 
     public static closeConnection() {
         console.log('[RabbitMQ] Connection closed');
-        RabbitMQ.amqpConnection.close();
+        RabbitMQ.connection.close();
     }
 }

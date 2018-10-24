@@ -47,8 +47,8 @@ process.on('SIGINT', async () => {
     Logger.log(syslogSeverityLevels.Informational, 'Server Started', `Port: ${config.server.port}`);
 
     // <RabbitMQ>
-    await FeatureNameBroker.startReceiver();
-    await FeatureNameBroker.startPublisher();
+    await FeatureNameBroker.startBrokers();
+    await FeatureNameBroker.subscribe();
     // </RabbitMQ>
 
     console.log('Starting server');
