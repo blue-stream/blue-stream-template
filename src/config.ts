@@ -16,10 +16,6 @@ export type Configuration = {
     };
     rabbitMQ: {
         host: string;
-        exchanges: {
-            featureNameReceiver: string;
-            featureNamePublisher: string;
-        };
         reconnect_timeout: number;
     };
     server: {
@@ -50,10 +46,6 @@ const development: Configuration = {
     },
     rabbitMQ: {
         host: 'localhost',
-        exchanges: {
-            featureNameReceiver: 'featureName',
-            featureNamePublisher: 'featureName',
-        },
         reconnect_timeout: 1000,
     },
     server: {
@@ -84,10 +76,6 @@ const production: Configuration = {
     },
     rabbitMQ: {
         host: 'localhost',
-        exchanges: {
-            featureNameReceiver: 'featureName',
-            featureNamePublisher: 'featureName',
-        },
         reconnect_timeout: 1000,
     },
     server: {
@@ -118,10 +106,6 @@ const test: Configuration = {
     },
     rabbitMQ: {
         host: 'localhost',
-        exchanges: {
-            featureNameReceiver: 'featureName',
-            featureNamePublisher: 'featureName',
-        },
         reconnect_timeout: 1000,
     },
     server: {
