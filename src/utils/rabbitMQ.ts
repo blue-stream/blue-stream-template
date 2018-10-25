@@ -6,10 +6,12 @@ export class RabbitMQ {
     channel!: amqp.Channel;
     exchange: string;
     type: string;
+    options: amqp.Options.AssertExchange;
 
-    constructor (exchange: string, type: string, private durable: boolean = true) {
+    constructor (exchange: string, type: string, options: amqp.Options.AssertExchange = {durable: true}) {
         this.exchange = exchange;
         this.type = type;
+        this.options = options;
     }
 
     public static async connect() {
@@ -29,29 +31,27 @@ export class RabbitMQ {
         console.log('[RabbitMQ] connected');
 
         RabbitMQ.connection = connection;
+    }
 
-        return connection;
+    public static async getChannel() {
+        const channel = await RabbitMQ.connection.createChannel();
+
+        channel.on('error', (error) => {
+            console.error('[RabbitMQ Logger] channel error', error.message);
+        });
+
+        channel.on('close', () => {
+            console.log('[RabbitMQ Logger] channel closed');
+        });
+
+        return channel;
     }
 
     public async start() {
-        if (!RabbitMQ.connection) {
-            throw new Error('[RabbitMQ] connection is not open');
-        } else {
-            this.channel = await RabbitMQ.connection.createChannel();
-
-            this.channel.assertExchange(this.exchange, this.type, { durable: this.durable });
-
-            this.channel.on('error', (error) => {
-                console.error('[RabbitMQ Logger] channel error', error.message);
-            });
-
-            this.channel.on('close', () => {
-                console.log('[RabbitMQ Logger] channel closed');
-            });
-
-        }
+        this.channel = await RabbitMQ.getChannel();
+        this.channel.assertExchange(this.exchange, this.type, this.options);
     }
-
+    
     public async subscribe(queueName: string, bindingKeys: string | Array<string>, messageHandler: (message: string) => any, prefetch?: number, durable: boolean = true) {
         const queue = await this.channel.assertQueue(config.server.name + queueName, { durable: durable });
         if (prefetch) this.channel.prefetch(prefetch);
