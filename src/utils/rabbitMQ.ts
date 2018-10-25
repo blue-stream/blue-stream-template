@@ -3,7 +3,6 @@ import { config } from '../config';
 
 export class RabbitMQ {
     static connection: amqp.Connection;
-    
     channel!: amqp.Channel;
     exchange: string = '';
     type: string = '';
@@ -50,17 +49,16 @@ export class RabbitMQ {
                 console.log('[RabbitMQ Logger] channel closed');
             });
 
-
             this.channel = channel;
         }
     }
 
-    public async subscribe(bindingKey: string, messageHandler: (message: string) => void) {
-        const queue = await this.channel.assertQueue(config.server.name, { durable: true });
+    public async subscribe(queueName: string, bindingKey: string, messageHandler: (message: string) => void) {
+        const queue = await this.channel.assertQueue(config.server.name + queueName, { durable: true });
         console.log(`[RabbitMQ] Waiting for messages in ${queue.queue} queue`);
         this.channel.bindQueue(queue.queue, this.exchange, bindingKey);
-        this.channel.consume(queue.queue, (message) => {
-            messageHandler(message ? message.content.toString() : '');
+        this.channel.consume(queue.queue, async (message) => {
+            await messageHandler(message ? message.content.toString() : '');
         });
     }
 
