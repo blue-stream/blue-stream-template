@@ -7,7 +7,7 @@ export class RabbitMQ {
     exchange: string;
     type: string;
 
-    constructor (exchange: string, type: string) {
+    constructor (exchange: string, type: string, private durable: boolean = true) {
         this.exchange = exchange;
         this.type = type;
     }
@@ -39,7 +39,7 @@ export class RabbitMQ {
         } else {
             this.channel = await RabbitMQ.connection.createChannel();
 
-            this.channel.assertExchange(this.exchange, this.type, { durable: true });
+            this.channel.assertExchange(this.exchange, this.type, { durable: this.durable });
 
             this.channel.on('error', (error) => {
                 console.error('[RabbitMQ Logger] channel error', error.message);
@@ -52,23 +52,26 @@ export class RabbitMQ {
         }
     }
 
-    public async subscribe(queueName: string, bindingKey: string, messageHandler: (message: string) => void, prefetch ?: number) {
-        const queue = await this.channel.assertQueue(config.server.name + queueName, { durable: true });
+    public async subscribe(queueName: string, bindingKeys: string | Array<string>, messageHandler: (message: string) => any, prefetch?: number, durable: boolean = true) {
+        const queue = await this.channel.assertQueue(config.server.name + queueName, { durable: durable });
         if (prefetch) this.channel.prefetch(prefetch);
-        console.log(`[RabbitMQ] Waiting for messages in ${queue.queue} queue`);
-        this.channel.bindQueue(queue.queue, this.exchange, bindingKey);
+        if (typeof bindingKeys == 'string') bindingKeys = bindingKeys.split(' ');
+        bindingKeys.forEach( (bindingKey: string) => {
+            this.channel.bindQueue(queue.queue, this.exchange, bindingKey);
+        });
+        
         this.channel.consume(queue.queue, async (message: amqp.Message | null) => {
-            await messageHandler(message ? message.content.toString() : '');
-            this.channel.ack(message as amqp.Message);
-        },                   { noAck : false });
+            try {
+                await messageHandler(message ? message.content.toString() : '');
+                this.channel.ack(message as amqp.Message);
+            } catch (error) {
+                this.channel.reject(message as amqp.Message);
+            }
+        }, { noAck : false });
     }
 
-    publish(routingKey: string, message: string) {
-        try {
-            this.channel.publish(this.exchange, routingKey, Buffer.from(message), { persistent: true });
-        } catch (error) {
-            console.error('[RabbitMQ Logger]', error.message);
-        }
+    publish(routingKey: string, message: string, persistent = true) {
+        this.channel.publish(this.exchange, routingKey, Buffer.from(message), { persistent: persistent });
     }
 
     public static closeConnection() {

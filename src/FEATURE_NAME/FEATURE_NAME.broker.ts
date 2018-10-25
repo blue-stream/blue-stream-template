@@ -10,7 +10,7 @@ export class FeatureNameBroker {
     }
 
     public static async subscribe() {
-        await FeatureNameBroker.broker.subscribe('action-queue', 'entity.event.status', (message: string) => {
+        await FeatureNameBroker.broker.subscribe('action-queue', 'entity.event.status', async (message: string) => {
             console.log('example publish message...');
             FeatureNameBroker.broker.publish('entity.event.status', `we recieved this: ${message}`);
         });
