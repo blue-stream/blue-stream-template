@@ -4,8 +4,8 @@ import { config } from '../config';
 export class RabbitMQ {
     static connection: amqp.Connection;
     channel!: amqp.Channel;
-    exchange: string = '';
-    type: string = '';
+    exchange: string;
+    type: string;
 
     constructor (exchange: string, type: string) {
         this.exchange = exchange;
@@ -37,29 +37,30 @@ export class RabbitMQ {
         if (!RabbitMQ.connection) {
             throw new Error('[RabbitMQ] connection is not open');
         } else {
-            const channel = await RabbitMQ.connection.createChannel();
+            this.channel = await RabbitMQ.connection.createChannel();
 
-            channel.assertExchange(this.exchange, this.type, { durable: true });
+            this.channel.assertExchange(this.exchange, this.type, { durable: true });
 
-            channel.on('error', (error) => {
+            this.channel.on('error', (error) => {
                 console.error('[RabbitMQ Logger] channel error', error.message);
             });
 
-            channel.on('close', () => {
+            this.channel.on('close', () => {
                 console.log('[RabbitMQ Logger] channel closed');
             });
 
-            this.channel = channel;
         }
     }
 
-    public async subscribe(queueName: string, bindingKey: string, messageHandler: (message: string) => void) {
+    public async subscribe(queueName: string, bindingKey: string, messageHandler: (message: string) => void, prefetch ?: number) {
         const queue = await this.channel.assertQueue(config.server.name + queueName, { durable: true });
+        if (prefetch) this.channel.prefetch(prefetch);
         console.log(`[RabbitMQ] Waiting for messages in ${queue.queue} queue`);
         this.channel.bindQueue(queue.queue, this.exchange, bindingKey);
-        this.channel.consume(queue.queue, async (message) => {
+        this.channel.consume(queue.queue, async (message: amqp.Message | null) => {
             await messageHandler(message ? message.content.toString() : '');
-        });
+            this.channel.ack(message as amqp.Message);
+        },                   { noAck : false });
     }
 
     publish(routingKey: string, message: string) {
