@@ -11,21 +11,29 @@ import { FeatureNameBroker } from './FEATURE_NAME/FEATURE_NAME.broker';
 
 process.on('uncaughtException', (err) => {
     console.error('Unhandled Exception', err.stack);
+    // <RabbitMQ>
     RabbitMQ.closeConnection();
+    // </RabbitMQ>
     process.exit(1);
 });
 
 process.on('unhandledRejection', (err) => {
     console.error('Unhandled Rejection', err);
+    // <RabbitMQ>
     RabbitMQ.closeConnection();
+    // </RabbitMQ>
     process.exit(1);
 });
 
 process.on('SIGINT', async () => {
     try {
         console.log('User Termination');
+        // <MongoDB>
         await mongoose.disconnect();
+        // </MongoDB>
+        // <RabbitMQ>
         RabbitMQ.closeConnection();
+        // </RabbitMQ>
         process.exit(0);
     } catch (error) {
         console.error('Faild to close connections', error);
@@ -42,11 +50,12 @@ process.on('SIGINT', async () => {
     console.log(`[MongoDB] connected to port ${config.db.port}`);
     // </MongoDB>
 
-    const connection = await RabbitMQ.connect();
     Logger.configure();
     Logger.log(syslogSeverityLevels.Informational, 'Server Started', `Port: ${config.server.port}`);
 
     // <RabbitMQ>
+    await RabbitMQ.connect('publish');
+    await RabbitMQ.connect('consume');
     await FeatureNameBroker.start();
     await FeatureNameBroker.subscribe();
     // </RabbitMQ>
@@ -55,7 +64,9 @@ process.on('SIGINT', async () => {
     const server: Server = Server.bootstrap();
 
     server.app.on('close', () => {
+        // <RabbitMQ>
         RabbitMQ.closeConnection();
+        // </RabbitMQ>
         // <MongoDB>
         mongoose.disconnect();
         // </MongoDB>
