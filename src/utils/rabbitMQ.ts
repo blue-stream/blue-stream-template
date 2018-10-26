@@ -2,8 +2,10 @@ import * as amqp from 'amqplib';
 import { config } from '../config';
 
 export class RabbitMQ {
-    static connection: amqp.Connection;
-    channel!: amqp.Channel;
+    static consumeConnection: amqp.Connection;
+    static publishConnection: amqp.Connection;
+    consumeChannel!: amqp.Channel;
+    publishChannel!: amqp.Channel;
     exchange: string;
     type: string;
     options: amqp.Options.AssertExchange;
@@ -14,7 +16,12 @@ export class RabbitMQ {
         this.options = options;
     }
 
-    public static async connect() {
+    public static async connect(): Promise<void> {
+        RabbitMQ.consumeConnection = await RabbitMQ.createConnection();
+        RabbitMQ.publishConnection = await RabbitMQ.createConnection();
+    }
+
+    private static async createConnection(): Promise<amqp.Connection> {
         const connection = await amqp.connect(`amqp://${config.rabbitMQ.host}`);
         connection.on('error', (error) => {
             if (error.message !== 'Connection closing') {
@@ -30,11 +37,11 @@ export class RabbitMQ {
 
         console.log('[RabbitMQ] connected');
 
-        RabbitMQ.connection = connection;
+        return connection;
     }
 
-    public static async getChannel() {
-        const channel = await RabbitMQ.connection.createChannel();
+    private static async createChannel(connection: amqp.Connection) {
+        const channel = await connection.createChannel();
 
         channel.on('error', (error) => {
             console.error('[RabbitMQ Logger] channel error', error.message);
@@ -47,35 +54,37 @@ export class RabbitMQ {
         return channel;
     }
 
-    public async start() {
-        this.channel = await RabbitMQ.getChannel();
-        this.channel.assertExchange(this.exchange, this.type, this.options);
+    public async start(): Promise<void> {
+        this.consumeChannel = await RabbitMQ.createChannel(RabbitMQ.consumeConnection);
+        this.publishChannel = await RabbitMQ.createChannel(RabbitMQ.publishConnection);
+        this.publishChannel.assertExchange(this.exchange, this.type, this.options);
     }
     
     public async subscribe(queueName: string, bindingKeys: string | Array<string>, messageHandler: (message: string) => any, prefetch?: number, durable: boolean = true) {
-        const queue = await this.channel.assertQueue(config.server.name + queueName, { durable: durable });
-        if (prefetch) this.channel.prefetch(prefetch);
+        const queue = await this.consumeChannel.assertQueue(config.server.name + queueName, { durable: durable });
+        if (prefetch) this.consumeChannel.prefetch(prefetch);
         if (typeof bindingKeys == 'string') bindingKeys = bindingKeys.split(' ');
         bindingKeys.forEach( (bindingKey: string) => {
-            this.channel.bindQueue(queue.queue, this.exchange, bindingKey);
+            this.consumeChannel.bindQueue(queue.queue, this.exchange, bindingKey);
         });
         
-        this.channel.consume(queue.queue, async (message: amqp.Message | null) => {
+        this.consumeChannel.consume(queue.queue, async (message: amqp.Message | null) => {
             try {
                 await messageHandler(message ? message.content.toString() : '');
-                this.channel.ack(message as amqp.Message);
+                this.consumeChannel.ack(message as amqp.Message);
             } catch (error) {
-                this.channel.reject(message as amqp.Message);
+                this.consumeChannel.reject(message as amqp.Message);
             }
         }, { noAck : false });
     }
 
-    publish(routingKey: string, message: string, persistent = true) {
-        this.channel.publish(this.exchange, routingKey, Buffer.from(message), { persistent: persistent });
+    public publish(routingKey: string, message: string, options: amqp.Options.Publish = {persistent: true}) {
+        this.publishChannel.publish(this.exchange, routingKey, Buffer.from(message),options);
     }
 
     public static closeConnection() {
         console.log('[RabbitMQ] Connection closed');
-        RabbitMQ.connection.close();
+        RabbitMQ.publishConnection.close();
+        RabbitMQ.consumeConnection.close();
     }
 }
