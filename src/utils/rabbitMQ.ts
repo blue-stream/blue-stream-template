@@ -21,9 +21,18 @@ export class RabbitMQ {
         this.options = options.exchangeOptions;
     }
 
-    public static async connect(): Promise<void> {
-        RabbitMQ.consumeConnection = await RabbitMQ.createConnection();
-        RabbitMQ.publishConnection = await RabbitMQ.createConnection();
+    public static async connect(select?: string): Promise<void> {
+        switch(select) {
+            case 'consume':
+                RabbitMQ.consumeConnection = await RabbitMQ.createConnection();
+                break;
+            case 'publish':
+                RabbitMQ.publishConnection = await RabbitMQ.createConnection();
+                break;
+            default:
+                RabbitMQ.consumeConnection = await RabbitMQ.createConnection();
+                RabbitMQ.publishConnection = await RabbitMQ.createConnection();
+        }
     }
 
     private static async createConnection(): Promise<amqp.Connection> {
@@ -60,10 +69,14 @@ export class RabbitMQ {
     }
 
     public async start(): Promise<void> {
-        this.consumeChannel = await RabbitMQ.createChannel(RabbitMQ.consumeConnection);
-        if (this.prefetch) this.consumeChannel.prefetch(this.prefetch);
-        this.publishChannel = await RabbitMQ.createChannel(RabbitMQ.publishConnection);
-        this.publishChannel.assertExchange(this.exchange, this.type, this.options);
+        if(this.consumeChannel) {
+            this.consumeChannel = await RabbitMQ.createChannel(RabbitMQ.consumeConnection);
+            if (this.prefetch) this.consumeChannel.prefetch(this.prefetch);
+        }
+        if(this.publishChannel) {
+            this.publishChannel = await RabbitMQ.createChannel(RabbitMQ.publishConnection);
+            this.publishChannel.assertExchange(this.exchange, this.type, this.options);
+        }
     }
     
     public async subscribe(queueName: string, bindingKeys: string | Array<string>, messageHandler: (message: string) => any, queueOptions: amqp.Options.AssertQueue = {durable: true}) {
