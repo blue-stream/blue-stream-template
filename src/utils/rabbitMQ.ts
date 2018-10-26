@@ -9,11 +9,16 @@ export class RabbitMQ {
     exchange: string;
     type: string;
     options: amqp.Options.AssertExchange;
+    prefetch!: number;
 
-    constructor (exchange: string, type: string, options: amqp.Options.AssertExchange = {durable: true}) {
+    constructor (
+        exchange: string, 
+        type: string, 
+        options: { exchangeOptions: amqp.Options.AssertExchange, prefetch?: number  } = { exchangeOptions : {durable: true} }
+    ) {
         this.exchange = exchange;
         this.type = type;
-        this.options = options;
+        this.options = options.exchangeOptions;
     }
 
     public static async connect(): Promise<void> {
@@ -56,13 +61,14 @@ export class RabbitMQ {
 
     public async start(): Promise<void> {
         this.consumeChannel = await RabbitMQ.createChannel(RabbitMQ.consumeConnection);
+        if (this.prefetch) this.consumeChannel.prefetch(this.prefetch);
         this.publishChannel = await RabbitMQ.createChannel(RabbitMQ.publishConnection);
         this.publishChannel.assertExchange(this.exchange, this.type, this.options);
     }
     
-    public async subscribe(queueName: string, bindingKeys: string | Array<string>, messageHandler: (message: string) => any, prefetch?: number, durable: boolean = true) {
-        const queue = await this.consumeChannel.assertQueue(config.server.name + queueName, { durable: durable });
-        if (prefetch) this.consumeChannel.prefetch(prefetch);
+    public async subscribe(queueName: string, bindingKeys: string | Array<string>, messageHandler: (message: string) => any, queueOptions: amqp.Options.AssertQueue = {durable: true}) {
+        const queue = await this.consumeChannel.assertQueue(config.server.name + queueName, queueOptions);
+        
         if (typeof bindingKeys == 'string') bindingKeys = bindingKeys.split(' ');
         bindingKeys.forEach( (bindingKey: string) => {
             this.consumeChannel.bindQueue(queue.queue, this.exchange, bindingKey);
