@@ -4,6 +4,7 @@ import { config } from '../config';
 export class RabbitMQ {
     static consumeConnection: amqp.Connection;
     static publishConnection: amqp.Connection;
+    static exchanges: RabbitMQ[] = [];
     consumeChannel!: amqp.Channel;
     publishChannel!: amqp.Channel;
     exchange: string;
@@ -22,6 +23,7 @@ export class RabbitMQ {
         this.type = type;
         this.options = options.exchangeOptions;
         this.requeue = options.requeue;
+        RabbitMQ.exchanges.push(this);
     }
 
     public static async connect(select?: string): Promise<void> {
@@ -71,12 +73,20 @@ export class RabbitMQ {
         return channel;
     }
 
-    public async start(): Promise<void> {
-        if (this.consumeChannel) {
+    public static async startExchanges(): Promise<void> {
+        // tslint:disable-next-line:prefer-const
+        for (let exchange of RabbitMQ.exchanges) {
+            await exchange.startExchange();
+        }
+    }
+
+    private async startExchange(): Promise<void> {
+        if (RabbitMQ.consumeConnection) {
             this.consumeChannel = await RabbitMQ.createChannel(RabbitMQ.consumeConnection);
+            this.consumeChannel.assertExchange(this.exchange, this.type, this.options);
             if (this.prefetch) this.consumeChannel.prefetch(this.prefetch);
         }
-        if (this.publishChannel) {
+        if (RabbitMQ.publishConnection) {
             this.publishChannel = await RabbitMQ.createChannel(RabbitMQ.publishConnection);
             this.publishChannel.assertExchange(this.exchange, this.type, this.options);
         }

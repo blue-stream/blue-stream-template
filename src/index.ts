@@ -56,7 +56,7 @@ process.on('SIGINT', async () => {
     // <RabbitMQ>
     await RabbitMQ.connect('publish');
     await RabbitMQ.connect('consume');
-    await FeatureNameBroker.start();
+    await RabbitMQ.startExchanges();
     await FeatureNameBroker.subscribe();
     // </RabbitMQ>
 

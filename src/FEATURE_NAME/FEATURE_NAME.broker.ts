@@ -5,10 +5,6 @@ import { config } from '../config';
 export class FeatureNameBroker {
     static appExchange: RabbitMQ = new RabbitMQ('application', 'topic');
 
-    public static async start() {
-        await FeatureNameBroker.appExchange.start();
-    }
-
     public static async subscribe() {
         await FeatureNameBroker.appExchange.subscribe('action-queue', 'source.event.status source.otherEvent.status', async (message: string) => {
             console.log('example publish message...');
