@@ -10,28 +10,31 @@ export class RabbitMQ {
     type: string;
     options: amqp.Options.AssertExchange;
     prefetch!: number;
+    requeue: boolean;
 
     constructor (
-        exchange: string, 
-        type: string, 
-        options: { exchangeOptions: amqp.Options.AssertExchange, prefetch?: number  } = { exchangeOptions : {durable: true} }
+        exchange: string,
+        type: string,
+        options: { exchangeOptions: amqp.Options.AssertExchange, prefetch?: number, requeue: boolean } =
+        { exchangeOptions : { durable: true }, requeue: false },
     ) {
         this.exchange = exchange;
         this.type = type;
         this.options = options.exchangeOptions;
+        this.requeue = options.requeue;
     }
 
     public static async connect(select?: string): Promise<void> {
-        switch(select) {
-            case 'consume':
-                RabbitMQ.consumeConnection = await RabbitMQ.createConnection();
-                break;
-            case 'publish':
-                RabbitMQ.publishConnection = await RabbitMQ.createConnection();
-                break;
-            default:
-                RabbitMQ.consumeConnection = await RabbitMQ.createConnection();
-                RabbitMQ.publishConnection = await RabbitMQ.createConnection();
+        switch (select) {
+        case 'consume':
+            RabbitMQ.consumeConnection = await RabbitMQ.createConnection();
+            break;
+        case 'publish':
+            RabbitMQ.publishConnection = await RabbitMQ.createConnection();
+            break;
+        default:
+            RabbitMQ.consumeConnection = await RabbitMQ.createConnection();
+            RabbitMQ.publishConnection = await RabbitMQ.createConnection();
         }
     }
 
@@ -69,36 +72,41 @@ export class RabbitMQ {
     }
 
     public async start(): Promise<void> {
-        if(this.consumeChannel) {
+        if (this.consumeChannel) {
             this.consumeChannel = await RabbitMQ.createChannel(RabbitMQ.consumeConnection);
             if (this.prefetch) this.consumeChannel.prefetch(this.prefetch);
         }
-        if(this.publishChannel) {
+        if (this.publishChannel) {
             this.publishChannel = await RabbitMQ.createChannel(RabbitMQ.publishConnection);
             this.publishChannel.assertExchange(this.exchange, this.type, this.options);
         }
     }
-    
-    public async subscribe(queueName: string, bindingKeys: string | Array<string>, messageHandler: (message: string) => any, queueOptions: amqp.Options.AssertQueue = {durable: true}) {
+
+    public async subscribe(queueName: string, rawBindingKeys: string | string[], messageHandler: (message: string) => any, queueOptions: amqp.Options.AssertQueue =
+    { durable: true }) {
+        let bindingKeys: string[];
         const queue = await this.consumeChannel.assertQueue(config.server.name + queueName, queueOptions);
-        
-        if (typeof bindingKeys == 'string') bindingKeys = bindingKeys.split(' ');
-        bindingKeys.forEach( (bindingKey: string) => {
+
+        if (typeof rawBindingKeys === 'string') bindingKeys = rawBindingKeys.trim().split(' ');
+        else bindingKeys = rawBindingKeys;
+
+        bindingKeys.forEach((bindingKey: string) => {
             this.consumeChannel.bindQueue(queue.queue, this.exchange, bindingKey);
         });
-        
+
         this.consumeChannel.consume(queue.queue, async (message: amqp.Message | null) => {
             try {
                 await messageHandler(message ? message.content.toString() : '');
                 this.consumeChannel.ack(message as amqp.Message);
             } catch (error) {
-                this.consumeChannel.reject(message as amqp.Message);
+                this.consumeChannel.reject(message as amqp.Message, this.requeue);
             }
-        }, { noAck : false });
+        },                          { noAck : false });
     }
 
-    public publish(routingKey: string, message: string, options: amqp.Options.Publish = {persistent: true}) {
-        this.publishChannel.publish(this.exchange, routingKey, Buffer.from(message),options);
+    public publish(routingKey: string, message: string, options: amqp.Options.Publish =
+        { persistent: true }) {
+        this.publishChannel.publish(this.exchange, routingKey, Buffer.from(message), options);
     }
 
     public static closeConnection() {
