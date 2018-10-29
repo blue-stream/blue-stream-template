@@ -54,12 +54,6 @@ export class RabbitMQ {
             }
         });
 
-        connection.on('close', () => {
-            console.error('[RabbitMQ] reconnecting');
-
-            return setTimeout(this.connect, config.rabbitMQ.reconnect_timeout);
-        });
-
         console.log('[RabbitMQ] connected');
 
         return connection;
@@ -70,10 +64,6 @@ export class RabbitMQ {
 
         channel.on('error', (error) => {
             console.error('[RabbitMQ Logger] channel error', error.message);
-        });
-
-        channel.on('close', () => {
-            console.log('[RabbitMQ Logger] channel closed');
         });
 
         return channel;
