@@ -17,6 +17,9 @@ export type Configuration = {
     rabbitMQ: {
         host: string;
         reconnect_timeout: number;
+        port: number;
+        password: string;
+        username: string;
     };
     server: {
         port: number,
@@ -47,6 +50,9 @@ const development: Configuration = {
     rabbitMQ: {
         host: 'localhost',
         reconnect_timeout: 1000,
+        port: 15672,
+        password: 'guest',
+        username: 'guest',
     },
     server: {
         port: 3000,
@@ -77,6 +83,9 @@ const production: Configuration = {
     rabbitMQ: {
         host: 'localhost',
         reconnect_timeout: 1000,
+        port: 15672,
+        password: 'guest',
+        username: 'guest',
     },
     server: {
         port: process.env.PORT ? +process.env.PORT : 3000,
@@ -107,6 +116,9 @@ const test: Configuration = {
     rabbitMQ: {
         host: 'localhost',
         reconnect_timeout: 1000,
+        port: 15672,
+        password: 'guest',
+        username: 'guest',
     },
     server: {
         port: process.env.PORT ? +process.env.PORT : 3000,

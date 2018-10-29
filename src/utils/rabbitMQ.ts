@@ -41,7 +41,13 @@ export class RabbitMQ {
     }
 
     private static async createConnection(): Promise<amqp.Connection> {
-        const connection = await amqp.connect(`amqp://${config.rabbitMQ.host}`);
+        const connection = await amqp.connect({
+            hostname : `amqp://${config.rabbitMQ.host}`,
+            username : config.rabbitMQ.username,
+            password : config.rabbitMQ.password,
+            port : config.rabbitMQ.port,
+        });
+
         connection.on('error', (error) => {
             if (error.message !== 'Connection closing') {
                 console.error('[RabbitMQ]', error.message);
@@ -121,7 +127,7 @@ export class RabbitMQ {
 
     public static closeConnection() {
         console.log('[RabbitMQ] Connection closed');
-        RabbitMQ.publishConnection.close();
-        RabbitMQ.consumeConnection.close();
+        if (RabbitMQ.publishConnection) RabbitMQ.publishConnection.close();
+        if (RabbitMQ.consumeConnection) RabbitMQ.consumeConnection.close();
     }
 }
