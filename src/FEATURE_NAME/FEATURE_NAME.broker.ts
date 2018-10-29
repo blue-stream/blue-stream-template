@@ -1,14 +1,21 @@
 // <RabbitMQ>
 import { RabbitMQ } from '../utils/rabbitMQ';
 import { config } from '../config';
+import * as amqp from 'amqplib';
+
+// put the required RabbitMQ Exchanges over here
+RabbitMQ.add(new RabbitMQ('application', 'topic'));
+// ----------
 
 export class FeatureNameBroker {
-    static appExchange: RabbitMQ = new RabbitMQ('application', 'topic');
+
+    public static async publish(exchange: string, routingKey: string, message: Object, options?: amqp.Options.Publish) {
+        RabbitMQ.exchanges[exchange].publish(routingKey, message, options);
+    }
 
     public static async subscribe() {
-        await FeatureNameBroker.appExchange.subscribe('action-queue', 'source.event.status source.otherEvent.status', async (message: string) => {
-            console.log('example publish message...');
-            FeatureNameBroker.appExchange.publish('entity.event.status', `we recieved this: ${message}`);
+        await RabbitMQ.exchanges['application'].subscribe('action-queue', 'source.event.status otherSource..otherEventstatus', async (message: Object) => {
+            console.log(`got this message: ${message}`);
         });
     }
 

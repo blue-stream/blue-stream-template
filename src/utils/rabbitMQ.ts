@@ -4,7 +4,7 @@ import { config } from '../config';
 export class RabbitMQ {
     static consumeConnection: amqp.Connection;
     static publishConnection: amqp.Connection;
-    static exchanges: RabbitMQ[] = [];
+    static exchanges: { [name: string] : RabbitMQ } = {};
     consumeChannel!: amqp.Channel;
     publishChannel!: amqp.Channel;
     exchange: string;
@@ -23,7 +23,10 @@ export class RabbitMQ {
         this.type = type;
         this.options = options.exchangeOptions;
         this.requeue = options.requeue;
-        RabbitMQ.exchanges.push(this);
+    }
+
+    public static add(exchange: RabbitMQ) {
+        RabbitMQ.exchanges[exchange.exchange] = exchange;
     }
 
     public static async connect(select?: string): Promise<void> {
@@ -71,8 +74,8 @@ export class RabbitMQ {
 
     public static async startExchanges(): Promise<void> {
         // tslint:disable-next-line:prefer-const
-        for (let exchange of RabbitMQ.exchanges) {
-            await exchange.startExchange();
+        for (let exchange of Object.keys(RabbitMQ.exchanges) {
+            await RabbitMQ.exchanges[exchange].startExchange();
         }
     }
 
@@ -102,7 +105,11 @@ export class RabbitMQ {
 
         this.consumeChannel.consume(queue.queue, async (message: amqp.Message | null) => {
             try {
-                await messageHandler(message ? message.content.toString() : '');
+                if(message) {
+                    const messageContent : string = message.content.toString();
+                    await messageHandler(JSON.parse(messageContent));
+                }
+                
                 this.consumeChannel.ack(message as amqp.Message);
             } catch (error) {
                 this.consumeChannel.reject(message as amqp.Message, this.requeue);
@@ -110,9 +117,9 @@ export class RabbitMQ {
         },                          { noAck : false });
     }
 
-    public publish(routingKey: string, message: string, options: amqp.Options.Publish =
+    public publish(routingKey: string, message: string | Object, options: amqp.Options.Publish =
         { persistent: true }) {
-        this.publishChannel.publish(this.exchange, routingKey, Buffer.from(message), options);
+        this.publishChannel.publish(this.exchange, routingKey, Buffer.from(JSON.stringify(message)), options);
     }
 
     public static closeConnection() {
