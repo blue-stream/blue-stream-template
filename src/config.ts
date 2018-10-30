@@ -16,7 +16,9 @@ export type Configuration = {
     };
     rabbitMQ: {
         host: string;
-        reconnect_timeout: number;
+        port: number;
+        password: string;
+        username: string;
     };
     server: {
         port: number,
@@ -36,17 +38,19 @@ export const config: Configuration = {
     },
     logger: {
         durable: false,
-        exchangeType: 'topic' || process.env.RMQ_LOGGER_TYPE,
-        exchange: 'blue_stream_logs' || process.env.RMQ_LOGGER_EXCHANGE,
-        host: 'localhost' || process.env.RMQ_LOGGER_HOST,
-        port: 15672 || process.env.RMQ_LOGGER_PORT,
-        password: 'guest' || process.env.RMQ_LOGGER_PASS,
-        username: 'guest' || process.env.RMQ_LOGGER_USER,
+        exchangeType: process.env.RMQ_LOGGER_TYPE || 'topic',
+        exchange: process.env.RMQ_LOGGER_EXCHANGE || 'blue_stream_logs',
+        host: process.env.RMQ_LOGGER_HOST || 'localhost',
+        port: +(process.env.RMQ_LOGGER_PORT || 15672),
+        password: process.env.RMQ_LOGGER_PASS || 'guest',
+        username: process.env.RMQ_LOGGER_USER || 'guest',
         persistent: false,
     },
     rabbitMQ: {
         host: process.env.RMQ_HOST || 'localhost',
-        reconnect_timeout: 1000,
+        port: +(process.env.RMQ_PORT || 5672),
+        password: process.env.RMQ_PASSWORD || 'guest',
+        username: process.env.RMQ_USERNAME || 'guest',
     },
     server: {
         port: 3000,
