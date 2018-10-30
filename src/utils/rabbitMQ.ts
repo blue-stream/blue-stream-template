@@ -74,7 +74,7 @@ export class RabbitMQ {
 
     public static async startExchanges(): Promise<void> {
         // tslint:disable-next-line:prefer-const
-        for (let exchange of Object.keys(RabbitMQ.exchanges) {
+        for (let exchange of Object.keys(RabbitMQ.exchanges)) {
             await RabbitMQ.exchanges[exchange].startExchange();
         }
     }
@@ -105,11 +105,11 @@ export class RabbitMQ {
 
         this.consumeChannel.consume(queue.queue, async (message: amqp.Message | null) => {
             try {
-                if(message) {
+                if (message) {
                     const messageContent : string = message.content.toString();
                     await messageHandler(JSON.parse(messageContent));
                 }
-                
+
                 this.consumeChannel.ack(message as amqp.Message);
             } catch (error) {
                 this.consumeChannel.reject(message as amqp.Message, this.requeue);
