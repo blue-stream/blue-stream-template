@@ -44,12 +44,10 @@ export class RabbitMQ {
     }
 
     private static async createConnection(): Promise<amqp.Connection> {
-        const connection = await amqp.connect({
-            hostname : `amqp://${config.rabbitMQ.host}`,
-            username : config.rabbitMQ.username,
-            password : config.rabbitMQ.password,
-            port : config.rabbitMQ.port,
-        });
+
+        const connection = await amqp.connect(
+            `amqp://${config.rabbitMQ.username}:${config.rabbitMQ.password}@${config.rabbitMQ.host}:${config.rabbitMQ.port}`,
+        );
 
         connection.on('error', (error) => {
             if (error.message !== 'Connection closing') {
@@ -94,7 +92,7 @@ export class RabbitMQ {
     public async subscribe(queueName: string, rawBindingKeys: string | string[], messageHandler: (message: string) => any, queueOptions: amqp.Options.AssertQueue =
     { durable: true }) {
         let bindingKeys: string[];
-        const queue = await this.consumeChannel.assertQueue(config.server.name + queueName, queueOptions);
+        const queue = await this.consumeChannel.assertQueue(`${config.server.name}-${queueName}`, queueOptions);
 
         if (typeof rawBindingKeys === 'string') bindingKeys = rawBindingKeys.trim().split(' ');
         else bindingKeys = rawBindingKeys;
