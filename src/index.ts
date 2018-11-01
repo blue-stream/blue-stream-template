@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
+import * as rabbit from 'rabbit-lite';
 import { Server } from './server';
-import { RabbitMQ } from './utils/rabbitMQ';
 import { Logger } from './utils/logger';
 import { config } from './config';
 import { syslogSeverityLevels } from 'llamajs';
@@ -12,7 +12,7 @@ import { FeatureNameBroker } from './FEATURE_NAME/FEATURE_NAME.broker';
 process.on('uncaughtException', (err) => {
     console.error('Unhandled Exception', err.stack);
     // <RabbitMQ>
-    RabbitMQ.closeConnection();
+    rabbit.closeConnection();
     // </RabbitMQ>
     process.exit(1);
 });
@@ -20,7 +20,7 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (err) => {
     console.error('Unhandled Rejection', err);
     // <RabbitMQ>
-    RabbitMQ.closeConnection();
+    rabbit.closeConnection();
     // </RabbitMQ>
     process.exit(1);
 });
@@ -32,7 +32,7 @@ process.on('SIGINT', async () => {
         await mongoose.disconnect();
         // </MongoDB>
         // <RabbitMQ>
-        RabbitMQ.closeConnection();
+        rabbit.closeConnection();
         // </RabbitMQ>
         process.exit(0);
     } catch (error) {
@@ -50,12 +50,13 @@ process.on('SIGINT', async () => {
     console.log(`[MongoDB] connected to port ${config.db.port}`);
     // </MongoDB>
 
+    // <Logger>
     Logger.configure();
     Logger.log(syslogSeverityLevels.Informational, 'Server Started', `Port: ${config.server.port}`);
+    // </Logger>
 
     // <RabbitMQ>
-    await RabbitMQ.connect('publish');
-    await RabbitMQ.connect('consume');
+    await rabbit.connect();
     await FeatureNameBroker.assertExchanges();
     await FeatureNameBroker.subscribe();
     // </RabbitMQ>
@@ -65,7 +66,7 @@ process.on('SIGINT', async () => {
 
     server.app.on('close', () => {
         // <RabbitMQ>
-        RabbitMQ.closeConnection();
+        rabbit.closeConnection();
         // </RabbitMQ>
         // <MongoDB>
         mongoose.disconnect();
