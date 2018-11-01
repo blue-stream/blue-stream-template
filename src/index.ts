@@ -56,6 +56,12 @@ process.on('SIGINT', async () => {
     // </Logger>
 
     // <RabbitMQ>
+    rabbit.configure({
+        username : config.rabbitMQ.username,
+        password : config.rabbitMQ.password,
+        port : config.rabbitMQ.port,
+        host : config.rabbitMQ.host,
+    });
     await rabbit.connect();
     await FeatureNameBroker.assertExchanges();
     await FeatureNameBroker.subscribe();
