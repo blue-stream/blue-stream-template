@@ -16,7 +16,7 @@ export class FeatureNameBroker {
     }
 
     public static async subscribe() {
-        await rabbit.subscribe('action-queue',
+        await rabbit.subscribe('FeatureName-action-queue',
                                { exchange : 'application', pattern : 'source.event.status' },
                                async (message: Object) => { console.log(`got this message: ${message}`); });
     }
