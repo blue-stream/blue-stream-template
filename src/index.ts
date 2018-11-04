@@ -1,31 +1,39 @@
 import * as mongoose from 'mongoose';
+import * as rabbit from 'rabbit-lite';
 import { Server } from './server';
-import { RabbitMQ } from './utils/rabbitMQ';
 import { Logger } from './utils/logger';
 import { config } from './config';
 import { syslogSeverityLevels } from 'llamajs';
 
 // <RabbitMQ>
-import { FeatureNameService } from './FEATURE_NAME/FEATURE_NAME.broker';
+import { FeatureNameBroker } from './FEATURE_NAME/FEATURE_NAME.broker';
 // </RabbitMQ>
 
 process.on('uncaughtException', (err) => {
     console.error('Unhandled Exception', err.stack);
-    RabbitMQ.closeConnection();
+    // <RabbitMQ>
+    rabbit.closeConnection();
+    // </RabbitMQ>
     process.exit(1);
 });
 
 process.on('unhandledRejection', (err) => {
     console.error('Unhandled Rejection', err);
-    RabbitMQ.closeConnection();
+    // <RabbitMQ>
+    rabbit.closeConnection();
+    // </RabbitMQ>
     process.exit(1);
 });
 
 process.on('SIGINT', async () => {
     try {
         console.log('User Termination');
+        // <MongoDB>
         await mongoose.disconnect();
-        RabbitMQ.closeConnection();
+        // </MongoDB>
+        // <RabbitMQ>
+        rabbit.closeConnection();
+        // </RabbitMQ>
         process.exit(0);
     } catch (error) {
         console.error('Faild to close connections', error);
@@ -42,19 +50,30 @@ process.on('SIGINT', async () => {
     console.log(`[MongoDB] connected to port ${config.db.port}`);
     // </MongoDB>
 
-    const connection = await RabbitMQ.connect();
+    // <Logger>
     Logger.configure();
     Logger.log(syslogSeverityLevels.Informational, 'Server Started', `Port: ${config.server.port}`);
+    // </Logger>
 
     // <RabbitMQ>
-    await FeatureNameService.startReceiver();
+    rabbit.configure({
+        username : config.rabbitMQ.username,
+        password : config.rabbitMQ.password,
+        port : config.rabbitMQ.port,
+        host : config.rabbitMQ.host,
+    });
+    await rabbit.connect();
+    await FeatureNameBroker.assertExchanges();
+    await FeatureNameBroker.subscribe();
     // </RabbitMQ>
 
     console.log('Starting server');
     const server: Server = Server.bootstrap();
 
     server.app.on('close', () => {
-        RabbitMQ.closeConnection();
+        // <RabbitMQ>
+        rabbit.closeConnection();
+        // </RabbitMQ>
         // <MongoDB>
         mongoose.disconnect();
         // </MongoDB>

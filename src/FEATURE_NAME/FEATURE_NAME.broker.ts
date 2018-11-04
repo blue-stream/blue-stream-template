@@ -1,25 +1,25 @@
 // <RabbitMQ>
-import { RabbitMQ } from '../utils/rabbitMQ';
+import * as rabbit from 'rabbit-lite';
+import * as amqp from 'amqplib';
 import { config } from '../config';
 
-export class FeatureNameService {
-    static rmqReceiver: RabbitMQ = new RabbitMQ(config.rabbitMQ.exchanges.featureNameReceiver);
-    static rmqPublisher: RabbitMQ = new RabbitMQ(config.rabbitMQ.exchanges.featureNamePublisher);
-
-    public static startReceiver() {
-        FeatureNameService.rmqReceiver.startReceiver(FeatureNameService.messageHandler);
+export class FeatureNameBroker {
+    public static async assertExchanges() {
+        await rabbit.assertExchange('application', 'topic');
     }
 
-    public static startPublisher() {
-        FeatureNameService.rmqPublisher.startPublisher();
+    public static async publish(exchange: string,
+                                routingKey: string,
+                                message: Object,
+                                options?: amqp.Options.Publish) {
+        rabbit.publish('application', routingKey, message, options);
     }
 
-    public static publish(routingKey: string, message: string) {
-        FeatureNameService.rmqPublisher.publish(routingKey, message);
+    public static async subscribe() {
+        await rabbit.subscribe('FeatureName-action-queue',
+                               { exchange : 'application', pattern : 'source.event.status' },
+                               async (message: Object) => { console.log(`got this message: ${message}`); });
     }
 
-    private static messageHandler(message: string) {
-        console.log(message);
-    }
 }
 // </RabbitMQ>

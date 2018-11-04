@@ -16,11 +16,9 @@ export type Configuration = {
     };
     rabbitMQ: {
         host: string;
-        exchanges: {
-            featureNameReceiver: string;
-            featureNamePublisher: string;
-        };
-        reconnect_timeout: number;
+        port: number;
+        password: string;
+        username: string;
     };
     server: {
         port: number,
@@ -32,7 +30,7 @@ export type Configuration = {
     };
 };
 
-const development: Configuration = {
+export const config: Configuration = {
     db: {
         host: process.env.DB_SERVER || 'localhost',
         name: process.env.DB_NAME || 'blue-stream-template',
@@ -40,21 +38,19 @@ const development: Configuration = {
     },
     logger: {
         durable: false,
-        exchangeType: 'topic' || process.env.RMQ_LOGGER_TYPE,
-        exchange: 'blue_stream_logs' || process.env.RMQ_LOGGER_EXCHANGE,
-        host: 'localhost' || process.env.RMQ_LOGGER_HOST,
-        port: 15672 || process.env.RMQ_LOGGER_PORT,
-        password: 'guest' || process.env.RMQ_LOGGER_PASS,
-        username: 'guest' || process.env.RMQ_LOGGER_USER,
+        exchangeType: process.env.RMQ_LOGGER_TYPE || 'topic',
+        exchange: process.env.RMQ_LOGGER_EXCHANGE || 'blue_stream_logs',
+        host: process.env.RMQ_LOGGER_HOST || 'localhost',
+        port: +(process.env.RMQ_LOGGER_PORT || 15672),
+        password: process.env.RMQ_LOGGER_PASS || 'guest',
+        username: process.env.RMQ_LOGGER_USER || 'guest',
         persistent: false,
     },
     rabbitMQ: {
-        host: 'localhost',
-        exchanges: {
-            featureNameReceiver: 'featureName',
-            featureNamePublisher: 'featureName',
-        },
-        reconnect_timeout: 1000,
+        host: process.env.RMQ_HOST || 'localhost',
+        port: +(process.env.RMQ_PORT || 5672),
+        password: process.env.RMQ_PASSWORD || 'guest',
+        username: process.env.RMQ_USERNAME || 'guest',
     },
     server: {
         port: 3000,
@@ -65,79 +61,3 @@ const development: Configuration = {
         secret: process.env.SECRET_KEY || 'bLue5tream@2018', // Don't use static value in production! remove from source control!
     },
 };
-
-const production: Configuration = {
-    db: {
-        host: process.env.DB_SERVER || 'localhost',
-        name: process.env.DB_NAME || 'blue-stream-template',
-        port: 27017,
-    },
-    logger: {
-        durable: false,
-        exchangeType: 'topic' || process.env.RMQ_LOGGER_TYPE,
-        exchange: 'blue_stream_logs' || process.env.RMQ_LOGGER_EXCHANGE,
-        host: 'localhost' || process.env.RMQ_LOGGER_HOST,
-        port: 15672 || process.env.RMQ_LOGGER_PORT,
-        password: 'guest' || process.env.RMQ_LOGGER_PASS,
-        username: 'guest' || process.env.RMQ_LOGGER_USER,
-        persistent: false,
-    },
-    rabbitMQ: {
-        host: 'localhost',
-        exchanges: {
-            featureNameReceiver: 'featureName',
-            featureNamePublisher: 'featureName',
-        },
-        reconnect_timeout: 1000,
-    },
-    server: {
-        port: process.env.PORT ? +process.env.PORT : 3000,
-        name: 'featureName',
-    },
-    authentication: {
-        required: true,
-        secret: process.env.SECRET_KEY || 'bLue5tream@2018', // Don't use static value in production! remove from source control!
-    },
-};
-
-const test: Configuration = {
-    db: {
-        host: process.env.DB_SERVER || 'localhost',
-        name: process.env.DB_NAME || 'blue-stream-template-test',
-        port: 27017,
-    },
-    logger: {
-        durable: false,
-        exchangeType: 'topic' || process.env.RMQ_LOGGER_TYPE,
-        exchange: 'blue_stream_logs' || process.env.RMQ_LOGGER_EXCHANGE,
-        host: 'localhost' || process.env.RMQ_LOGGER_HOST,
-        port: 15672 || process.env.RMQ_LOGGER_PORT,
-        password: 'guest' || process.env.RMQ_LOGGER_PASS,
-        username: 'guest' || process.env.RMQ_LOGGER_USER,
-        persistent: false,
-    },
-    rabbitMQ: {
-        host: 'localhost',
-        exchanges: {
-            featureNameReceiver: 'featureName',
-            featureNamePublisher: 'featureName',
-        },
-        reconnect_timeout: 1000,
-    },
-    server: {
-        port: process.env.PORT ? +process.env.PORT : 3000,
-        name: 'featureName',
-    },
-    authentication: {
-        required: true,
-        secret: process.env.SECRET_KEY || 'bLue5tream@2018', // Don't use static value in production! remove from source control!
-    },
-};
-
-const configuration: { [index: string]: Configuration } = {
-    development,
-    production,
-    test,
-};
-
-export const config = configuration[process.env.NODE_ENV || 'development'];
