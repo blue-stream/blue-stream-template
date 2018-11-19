@@ -1,5 +1,5 @@
 import * as mongoose from 'mongoose';
-import * as rabbit from 'rabbit-lite';
+import * as rabbit from './utils/rabbit';
 import { Server } from './server';
 import { Logger } from './utils/logger';
 import { config } from './config';
@@ -56,14 +56,7 @@ process.on('SIGINT', async () => {
     // </Logger>
 
     // <RabbitMQ>
-    rabbit.configure({
-        username : config.rabbitMQ.username,
-        password : config.rabbitMQ.password,
-        port : config.rabbitMQ.port,
-        host : config.rabbitMQ.host,
-    });
     await rabbit.connect();
-    await FeatureNameBroker.assertExchanges();
     await FeatureNameBroker.subscribe();
     // </RabbitMQ>
 
