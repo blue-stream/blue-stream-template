@@ -1,36 +1,4 @@
-export type Configuration = {
-    db: {
-        host: string;
-        name: string;
-        port: number;
-    };
-    logger: {
-        durable: boolean;
-        exchangeType: string;
-        exchange: string;
-        host: string;
-        port: number;
-        password: string;
-        username: string;
-        persistent: boolean;
-    };
-    rabbitMQ: {
-        host: string;
-        port: number;
-        password: string;
-        username: string;
-    };
-    server: {
-        port: number,
-        name: string,
-    };
-    authentication: {
-        required: boolean;
-        secret: string;
-    };
-};
-
-export const config: Configuration = {
+export const config = {
     db: {
         host: process.env.DB_SERVER || 'localhost',
         name: process.env.DB_NAME || 'blue-stream-template',
