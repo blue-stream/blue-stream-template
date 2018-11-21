@@ -14,9 +14,9 @@ export class FeatureNameBroker {
         rabbit.subscribe(
         'application',
         'topic',
-        'FeatureName-action-queue',
+        'featureName-action-queue',
         'sourceMicroserivce.entity.action.status',
-        async (FeatureName: any) => { console.log(`got this message: ${FeatureName}`); });
+        async (data: any) => { console.log(`got this message: ${data}`); });
     }
 
 }
