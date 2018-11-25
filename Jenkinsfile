@@ -40,13 +40,13 @@ spec:
         def reponame = determineRepoName()
     }
 
-    stage('run a blue-stream-featureName test') {
+    stage('run a blue-stream-feature-name test') {
       container('jenkins-build-slave') {
         withCredentials([string(credentialsId: 'ACRUSER', variable: 'ACRUSER'), string(credentialsId: 'ACRPASS', variable: 'ACRPASS'), string(credentialsId: 'BS_RMQ_SERVER', variable: 'RMQ_SERVER'), string(credentialsId: 'BS_DB_SERVER', variable: 'DB_SERVER')]) {
           checkout scm
           sh "docker login bluehub.azurecr.io -u $ACRUSER -p $ACRPASS"
-          sh "docker build -t bluehub.azurecr.io/blue-stream/blue-stream-featureName:${GIT_SHORT_COMMIT} ."
-          sh "docker run --env DB_SERVER=$DB_SERVER --env RMQ_HOST=$RMQ_SERVER bluehub.azurecr.io/blue-stream/blue-stream-featureName:${GIT_SHORT_COMMIT} npm test"       
+          sh "docker build -t bluehub.azurecr.io/blue-stream/blue-stream-feature-name:${GIT_SHORT_COMMIT} ."
+          sh "docker run --env DB_SERVER=$DB_SERVER --env RMQ_HOST=$RMQ_SERVER bluehub.azurecr.io/blue-stream/blue-stream-feature-name:${GIT_SHORT_COMMIT} npm test"       
         }
       }
     }
