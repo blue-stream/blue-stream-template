@@ -181,7 +181,7 @@ describe('FeatureName Module', function () {
 
             it('Should return updated featureName', function (done: MochaDone) {
                 request(server.app)
-                    .put(`/api/featureName/many`)
+                    .put('/api/featureName/many')
                     .send({ featureName: featureName2, featureNameFilter: featureName })
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
@@ -203,7 +203,7 @@ describe('FeatureName Module', function () {
 
             it('Should return 404 error status code', function (done: MochaDone) {
                 request(server.app)
-                    .put(`/api/featureName/many`)
+                    .put('/api/featureName/many')
                     .send({ featureName, featureNameFilter: unexistingFeatureName })
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
@@ -230,7 +230,7 @@ describe('FeatureName Module', function () {
 
             it('Should return error status when property is invalid', function (done: MochaDone) {
                 request(server.app)
-                    .put(`/api/featureName/many`)
+                    .put('/api/featureName/many')
                     .send({ featureName: invalidFeatureName, featureNameFilter: featureName2 })
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
@@ -311,7 +311,7 @@ describe('FeatureName Module', function () {
 
             it('Should return error status when id is invalid', function (done: MochaDone) {
                 request(server.app)
-                    .put(`/api/featureName/2`)
+                    .put('/api/featureName/2')
                     .send({ featureName })
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
