@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import { Types } from 'mongoose';
 import { FeatureNameValidator } from './FEATURE_NAME.validator';
 import { ValidRequestMocks, responseMock } from './FEATURE_NAME.mocks';
 import { PropertyInvalidError, IdInvalidError } from '../../utils/errors/userErrors';
