@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { FeatureNameValidatons } from './FEATURE_NAME.validations';
+import { FeatureNameValidations } from './FEATURE_NAME.validations';
 import { PropertyInvalidError, IdInvalidError } from '../../utils/errors/userErrors';
 import { IFeatureName } from '../FEATURE_NAME.interface';
 
@@ -48,7 +48,7 @@ export class FeatureNameValidator {
     }
 
     private static validateProperty(property: string) {
-        if (!FeatureNameValidatons.isPropertyValid(property)) {
+        if (!FeatureNameValidations.isPropertyValid(property)) {
             return new PropertyInvalidError();
         }
 
@@ -56,7 +56,7 @@ export class FeatureNameValidator {
     }
 
     private static validateId(id: string) {
-        if (!FeatureNameValidatons.isIdValid(id)) {
+        if (!FeatureNameValidations.isIdValid(id)) {
             return new IdInvalidError();
         }
 
