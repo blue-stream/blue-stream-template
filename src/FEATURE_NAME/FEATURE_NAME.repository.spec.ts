@@ -152,7 +152,7 @@ describe('FeatureName Repository', function () {
                 }
             });
 
-            it('Should return null when updated doc does not exists', async function () {
+            it('Should return null when updated doc does does not exist', async function () {
                 const updatedDoc = await FeatureNameRepository.updateById(new mongoose.Types.ObjectId().toHexString(), {});
                 expect(updatedDoc).to.not.exist;
             });
@@ -283,7 +283,7 @@ describe('FeatureName Repository', function () {
                 expect(doc).to.not.exist;
             });
 
-            it('Should return null when document not exists', async function () {
+            it('Should return null when document does not exist', async function () {
                 const deleted = await FeatureNameRepository.deleteById(new mongoose.Types.ObjectId().toHexString());
                 expect(deleted).to.not.exist;
             });
@@ -326,7 +326,7 @@ describe('FeatureName Repository', function () {
                 }
             });
 
-            it('Should return null when document not exists', async function () {
+            it('Should return null when document does not exist', async function () {
                 const doc = await FeatureNameRepository.getById(validId);
                 expect(doc).to.not.exist;
             });
@@ -375,14 +375,14 @@ describe('FeatureName Repository', function () {
                 }
             });
 
-            it('Should return null when document not exists', async function () {
+            it('Should return null when document does not exist', async function () {
                 const doc = await FeatureNameRepository.getOne(unexistingFeatureName);
                 expect(doc).to.not.exist;
             });
         });
 
         context('When data is invalid', function () {
-            it('Should throw error when filter not exists', async function () {
+            it('Should throw error when filter does not exist', async function () {
                 let hasThrown = false;
 
                 try {
@@ -458,7 +458,7 @@ describe('FeatureName Repository', function () {
                 }
             });
 
-            it('Should return null when filter is not in correct format', async function () {
+            it('Should return empty array when filter is not in correct format', async function () {
                 const documents = await FeatureNameRepository.getMany(unknownProperty);
                 expect(documents).to.exist;
                 expect(documents).to.be.an('array');
