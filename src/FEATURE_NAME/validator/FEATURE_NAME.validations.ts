@@ -12,4 +12,10 @@ export class FeatureNameValidations {
         return (!!id && Types.ObjectId.isValid(id));
     }
     // </MongoDB>
+
+    // !<MongoDB>
+    static isIdValid_REMOVE/*MongoDB*/(id: string): boolean {
+        return true;
+    }
+    // !</MongoDB>
 }
