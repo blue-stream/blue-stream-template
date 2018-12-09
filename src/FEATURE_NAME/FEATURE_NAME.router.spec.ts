@@ -1,6 +1,8 @@
 import * as request from 'supertest';
 import { expect } from 'chai';
+// <MongoDB>
 import * as mongoose from 'mongoose';
+// </MongoDB>
 
 import { IFeatureName } from './FEATURE_NAME.interface';
 import { Server } from '../server';
