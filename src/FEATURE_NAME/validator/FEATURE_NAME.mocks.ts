@@ -1,4 +1,6 @@
+// <MongoDB>
 import { Types } from 'mongoose';
+// </MongoDB>
 import { createRequest, createResponse } from 'node-mocks-http';
 import { sign } from 'jsonwebtoken';
 import { config } from '../../config';
@@ -71,7 +73,12 @@ export class ValidRequestMocks {
             authorization: this.authorizationHeader,
         },
         params: {
+            // <MongoDB>
             id: new Types.ObjectId(),
+            // </MongoDB>
+            // !<MongoDB>
+            id_REMOVE: '12345',
+            // !</MongoDB>
         },
         body: {
             featureName: this.featureName,
@@ -85,7 +92,12 @@ export class ValidRequestMocks {
             authorization: this.authorizationHeader,
         },
         params: {
+            // <MongoDB>
             id: new Types.ObjectId(),
+            // </MongoDB>
+            // !<MongoDB>
+            id_REMOVE: '12345',
+            // !</MongoDB>
         },
     });
 
@@ -123,7 +135,12 @@ export class ValidRequestMocks {
             authorization: this.authorizationHeader,
         },
         params: {
+            // <MongoDB>
             id: new Types.ObjectId(),
+            // </MongoDB>
+            // !<MongoDB>
+            id_REMOVE: '12345',
+            // !</MongoDB>
         },
     });
 }
