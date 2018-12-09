@@ -34,9 +34,7 @@ export class ValidRequestMocks {
         headers: {
             authorization: this.authorizationHeader,
         },
-        body: {
-            featureName: this.featureName,
-        },
+        body: this.featureName,
     });
 
     createMany = createRequest({
@@ -45,25 +43,11 @@ export class ValidRequestMocks {
         headers: {
             authorization: this.authorizationHeader,
         },
-        body: {
-            featureNames: [
-                this.featureName,
-                this.featureName2,
-                this.featureName3,
-            ],
-        },
-    });
-
-    updateMany = createRequest({
-        method: 'PUT',
-        url: '/api/featureName/many',
-        headers: {
-            authorization: this.authorizationHeader,
-        },
-        body: {
-            featureNameFilter: this.featureNameFilter,
-            featureName: this.featureName,
-        },
+        body: [
+            this.featureName,
+            this.featureName2,
+            this.featureName3,
+        ],
     });
 
     updateById = createRequest({
@@ -80,13 +64,37 @@ export class ValidRequestMocks {
             id_REMOVE: '12345',
             // !</MongoDB>
         },
-        body: {
-            featureName: this.featureName,
+        body: this.featureName,
+    });
+
+    updateMany = createRequest({
+        method: 'PUT',
+        url: '/api/featureName/many',
+        headers: {
+            authorization: this.authorizationHeader,
         },
+        query: this.featureNameFilter,
+        body: this.featureName,
     });
 
     deleteById = createRequest({
         method: 'DELETE',
+        url: '/api/featureName/:id',
+        headers: {
+            authorization: this.authorizationHeader,
+        },
+        query: {
+            // <MongoDB>
+            id: new Types.ObjectId(),
+            // </MongoDB>
+            // !<MongoDB>
+            id_REMOVE: '12345',
+            // !</MongoDB>
+        },
+    });
+
+    getById = createRequest({
+        method: 'GET',
         url: '/api/featureName/:id',
         headers: {
             authorization: this.authorizationHeader,
@@ -126,21 +134,5 @@ export class ValidRequestMocks {
             authorization: this.authorizationHeader,
         },
         query: this.featureName,
-    });
-
-    getById = createRequest({
-        method: 'GET',
-        url: '/api/featureName/:id',
-        headers: {
-            authorization: this.authorizationHeader,
-        },
-        params: {
-            // <MongoDB>
-            id: new Types.ObjectId(),
-            // </MongoDB>
-            // !<MongoDB>
-            id_REMOVE: '12345',
-            // !</MongoDB>
-        },
     });
 }
