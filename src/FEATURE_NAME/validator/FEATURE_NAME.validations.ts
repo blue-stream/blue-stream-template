@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 
-export class FeatureNameValidatons {
+export class FeatureNameValidations {
     static isPropertyValid(property: string): boolean {
         return (!!property && property.length < 10);
     }
