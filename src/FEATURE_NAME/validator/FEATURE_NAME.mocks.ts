@@ -83,7 +83,7 @@ export class ValidRequestMocks {
         headers: {
             authorization: this.authorizationHeader,
         },
-        query: {
+        params: {
             // <MongoDB>
             id: new Types.ObjectId(),
             // </MongoDB>

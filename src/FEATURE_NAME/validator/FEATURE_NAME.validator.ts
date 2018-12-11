@@ -29,7 +29,7 @@ export class FeatureNameValidator {
     }
 
     static canDeleteById(req: Request, res: Response, next: NextFunction) {
-        next(FeatureNameValidator.validateId(req.query.id));
+        next(FeatureNameValidator.validateId(req.params.id));
     }
 
     static canGetById(req: Request, res: Response, next: NextFunction) {

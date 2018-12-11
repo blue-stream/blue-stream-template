@@ -21,8 +21,11 @@ export const config = {
         username: process.env.RMQ_USERNAME || 'guest',
     },
     server: {
-        port: 3000,
+        port:  +(process.env.PORT || 3000),
         name: 'featureName',
+    },
+    cors: {
+        allowedOrigins: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['http://localhost:4200'],
     },
     authentication: {
         required: true,

@@ -11,7 +11,7 @@ import { config } from '../config';
 import { FeatureNameManager } from './FEATURE_NAME.manager';
 import { sign } from 'jsonwebtoken';
 
-describe('FeatureName Module', function () {
+describe('FeatureName Router Module', function () {
     let server: Server;
     const validProppertyString: string = '12345';
     const featureName: IFeatureName = {
@@ -67,7 +67,7 @@ describe('FeatureName Module', function () {
             it('Should return created featureName', function (done: MochaDone) {
                 request(server.app)
                     .post('/api/featureName/')
-                    .send({ featureName })
+                    .send(featureName)
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
                     // </Authentication using JWT>
@@ -96,7 +96,7 @@ describe('FeatureName Module', function () {
             it('Should return error status when property is invalid', function (done: MochaDone) {
                 request(server.app)
                     .post('/api/featureName/')
-                    .send({ featureName: invalidFeatureName })
+                    .send(invalidFeatureName)
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
                     // </Authentication using JWT>
@@ -125,7 +125,7 @@ describe('FeatureName Module', function () {
             it('Should return created featureName', function (done: MochaDone) {
                 request(server.app)
                     .post('/api/featureName/many/')
-                    .send({ featureNames })
+                    .send(featureNames)
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
                     // </Authentication using JWT>
@@ -152,7 +152,7 @@ describe('FeatureName Module', function () {
             it('Should return error status when property is invalid', function (done: MochaDone) {
                 request(server.app)
                     .post('/api/featureName/many/')
-                    .send({ featureNames: invalidFeatureNames })
+                    .send(invalidFeatureNames)
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
                     // </Authentication using JWT>
@@ -183,8 +183,9 @@ describe('FeatureName Module', function () {
 
             it('Should return updated featureName', function (done: MochaDone) {
                 request(server.app)
-                    .put(`/api/featureName/many`)
-                    .send({ featureName: featureName2, featureNameFilter: featureName })
+                    .put('/api/featureName/many')
+                    .query(featureName)
+                    .send(featureName2)
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
                     // </Authentication using JWT>
@@ -205,8 +206,9 @@ describe('FeatureName Module', function () {
 
             it('Should return 404 error status code', function (done: MochaDone) {
                 request(server.app)
-                    .put(`/api/featureName/many`)
-                    .send({ featureName, featureNameFilter: unexistingFeatureName })
+                    .put('/api/featureName/many')
+                    .query(unexistingFeatureName)
+                    .send(featureName)
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
                     // </Authentication using JWT>
@@ -232,8 +234,9 @@ describe('FeatureName Module', function () {
 
             it('Should return error status when property is invalid', function (done: MochaDone) {
                 request(server.app)
-                    .put(`/api/featureName/many`)
-                    .send({ featureName: invalidFeatureName, featureNameFilter: featureName2 })
+                    .put('/api/featureName/many')
+                    .query(featureName2)
+                    .send(invalidFeatureName)
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
                     // </Authentication using JWT>
@@ -265,7 +268,7 @@ describe('FeatureName Module', function () {
             it('Should return updated featureName', function (done: MochaDone) {
                 request(server.app)
                     .put(`/api/featureName/${returnedFeatureName.id}`)
-                    .send({ featureName })
+                    .send(featureName)
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
                     // </Authentication using JWT>
@@ -286,7 +289,7 @@ describe('FeatureName Module', function () {
             it('Should return error status when id is not found', function (done: MochaDone) {
                 request(server.app)
                     .put(`/api/featureName/${new mongoose.Types.ObjectId()}`)
-                    .send({ featureName })
+                    .send(featureName)
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
                     // </Authentication using JWT>
@@ -313,8 +316,8 @@ describe('FeatureName Module', function () {
 
             it('Should return error status when id is invalid', function (done: MochaDone) {
                 request(server.app)
-                    .put(`/api/featureName/2`)
-                    .send({ featureName })
+                    .put('/api/featureName/2')
+                    .send(featureName)
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
                     // </Authentication using JWT>
@@ -335,7 +338,7 @@ describe('FeatureName Module', function () {
             it('Should return error status when property is invalid', function (done: MochaDone) {
                 request(server.app)
                     .put(`/api/featureName/${returnedFeatureName.id}`)
-                    .send({ featureName: invalidFeatureName })
+                    .send(invalidFeatureName)
                     // <Authentication using JWT>
                     .set({ authorization: authorizationHeader })
                     // </Authentication using JWT>

@@ -316,4 +316,3 @@ describe('FeatureName Validator Middleware', function () {
         });
     });
 });
-});
