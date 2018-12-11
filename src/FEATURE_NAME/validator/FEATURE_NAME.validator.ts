@@ -9,6 +9,7 @@ export class FeatureNameValidator {
         next(FeatureNameValidator.validateProperty(req.body.property));
     }
 
+    // <MongoDB>
     static canCreateMany(req: Request, res: Response, next: NextFunction) {
         const propertiesValidations: (Error | undefined)[] = req.body.map((featureName: IFeatureName) => {
             return FeatureNameValidator.validateProperty(featureName.property);
@@ -48,14 +49,6 @@ export class FeatureNameValidator {
         next();
     }
 
-    private static validateProperty(property: string) {
-        if (!FeatureNameValidations.isPropertyValid(property)) {
-            return new PropertyInvalidError();
-        }
-
-        return undefined;
-    }
-
     private static validateId(id: string) {
         if (!FeatureNameValidations.isIdValid(id)) {
             return new IdInvalidError();
@@ -74,5 +67,15 @@ export class FeatureNameValidator {
         }
 
         return nextValue;
+    }
+
+    // <MongoDB>
+
+    private static validateProperty(property: string) {
+        if (!FeatureNameValidations.isPropertyValid(property)) {
+            return new PropertyInvalidError();
+        }
+
+        return undefined;
     }
 }
