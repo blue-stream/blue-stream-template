@@ -13,7 +13,7 @@ export class FeatureNameValidations {
     // </MongoDB>
 
     // !<MongoDB>
-    static isIdValid_REMOVE(id: string): boolean {
+    static isIdValid_REMOVE/*MongoDB*/(id: string): boolean {
         return (!!id);
     }
     // !</MongoDB>
