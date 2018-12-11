@@ -89,7 +89,7 @@ describe('FeatureName Repository', function () {
 
                 expect(createdDocuments).to.exist;
                 expect(createdDocuments).to.be.an('array');
-                expect(createdDocuments).to.have.lengthOf(6);
+                expect(createdDocuments).to.have.lengthOf(featureNameArr.length);
             });
 
             it('Should not create documents when empty array passed', async function () {
