@@ -69,8 +69,7 @@ export class FeatureNameValidator {
         return nextValue;
     }
 
-    // <MongoDB>
-
+    // </MongoDB>
     private static validateProperty(property: string) {
         if (!FeatureNameValidations.isPropertyValid(property)) {
             return new PropertyInvalidError();
