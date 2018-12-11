@@ -2,7 +2,7 @@ export const config = {
     db: {
         host: process.env.DB_SERVER || 'localhost',
         name: process.env.DB_NAME || 'blue-stream-featureName',
-        port: 27017,
+        port: +(process.env.DB_PORT || 27017),
     },
     logger: {
         durable: false,
