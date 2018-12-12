@@ -37,6 +37,8 @@ export class ValidRequestMocks {
         body: this.featureName,
     });
 
+    // <MongoDB>
+
     createMany = createRequest({
         method: 'POST',
         url: '/api/featureName/many/',
@@ -57,12 +59,8 @@ export class ValidRequestMocks {
             authorization: this.authorizationHeader,
         },
         params: {
-            // <MongoDB>
             id: new Types.ObjectId(),
-            // </MongoDB>
-            // !<MongoDB>
             id_REMOVE: '12345',
-            // !</MongoDB>
         },
         body: this.featureName,
     });
@@ -84,12 +82,7 @@ export class ValidRequestMocks {
             authorization: this.authorizationHeader,
         },
         params: {
-            // <MongoDB>
             id: new Types.ObjectId(),
-            // </MongoDB>
-            // !<MongoDB>
-            id_REMOVE: '12345',
-            // !</MongoDB>
         },
     });
 
@@ -100,12 +93,7 @@ export class ValidRequestMocks {
             authorization: this.authorizationHeader,
         },
         params: {
-            // <MongoDB>
             id: new Types.ObjectId(),
-            // </MongoDB>
-            // !<MongoDB>
-            id_REMOVE: '12345',
-            // !</MongoDB>
         },
     });
 
@@ -135,4 +123,5 @@ export class ValidRequestMocks {
         },
         query: this.featureName,
     });
+    // <MongoDB>
 }
