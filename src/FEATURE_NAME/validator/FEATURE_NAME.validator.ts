@@ -1,16 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
-import { FeatureNameValidatons } from './FEATURE_NAME.validations';
+import { FeatureNameValidations } from './FEATURE_NAME.validations';
 import { PropertyInvalidError, IdInvalidError } from '../../utils/errors/userErrors';
 import { IFeatureName } from '../FEATURE_NAME.interface';
 
 export class FeatureNameValidator {
 
     static canCreate(req: Request, res: Response, next: NextFunction) {
-        next(FeatureNameValidator.validateProperty(req.body.featureName.property));
+        next(FeatureNameValidator.validateProperty(req.body.property));
     }
 
+    // <MongoDB>
     static canCreateMany(req: Request, res: Response, next: NextFunction) {
-        const propertiesValidations: (Error | undefined)[] = req.body.featureNames.map((featureName: IFeatureName) => {
+        const propertiesValidations: (Error | undefined)[] = req.body.map((featureName: IFeatureName) => {
             return FeatureNameValidator.validateProperty(featureName.property);
         });
 
@@ -20,11 +21,12 @@ export class FeatureNameValidator {
     static canUpdateById(req: Request, res: Response, next: NextFunction) {
         next(
             FeatureNameValidator.validateId(req.params.id) ||
-            FeatureNameValidator.validateProperty(req.body.featureName.property));
+            FeatureNameValidator.validateProperty(req.body.property));
     }
 
     static canUpdateMany(req: Request, res: Response, next: NextFunction) {
-        next(FeatureNameValidator.validateProperty(req.body.featureName.property));
+        next(FeatureNameValidator.validateProperty(req.query.property) ||
+            FeatureNameValidator.validateProperty(req.body.property));
     }
 
     static canDeleteById(req: Request, res: Response, next: NextFunction) {
@@ -47,16 +49,8 @@ export class FeatureNameValidator {
         next();
     }
 
-    private static validateProperty(property: string) {
-        if (!FeatureNameValidatons.isPropertyValid(property)) {
-            return new PropertyInvalidError();
-        }
-
-        return undefined;
-    }
-
     private static validateId(id: string) {
-        if (!FeatureNameValidatons.isIdValid(id)) {
+        if (!FeatureNameValidations.isIdValid(id)) {
             return new IdInvalidError();
         }
 
@@ -73,5 +67,14 @@ export class FeatureNameValidator {
         }
 
         return nextValue;
+    }
+
+    // </MongoDB>
+    private static validateProperty(property: string) {
+        if (!FeatureNameValidations.isPropertyValid(property)) {
+            return new PropertyInvalidError();
+        }
+
+        return undefined;
     }
 }

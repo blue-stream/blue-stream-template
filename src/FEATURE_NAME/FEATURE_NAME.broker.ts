@@ -1,6 +1,5 @@
 // <RabbitMQ>
 import * as rabbit from '../utils/rabbit';
-import { config } from '../config';
 
 export class FeatureNameBroker {
 

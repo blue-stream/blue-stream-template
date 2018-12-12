@@ -1,5 +1,9 @@
+// <MongoDB>
 import * as mongoose from 'mongoose';
+// </MongoDB>
+// <RabbitMQ>
 import * as rabbit from './utils/rabbit';
+// </RabbitMQ>
 import { Server } from './server';
 import { Logger } from './utils/logger';
 import { config } from './config';

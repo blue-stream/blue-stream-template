@@ -7,11 +7,11 @@ import { UpdateWriteOpResult } from 'mongodb';
 type UpdateResponse = UpdateWriteOpResult['result'];
 export class FeatureNameController {
     static async create(req: Request, res: Response) {
-        res.json(await FeatureNameManager.create(req.body.featureName));
+        res.json(await FeatureNameManager.create(req.body));
     }
 
     static async createMany(req: Request, res: Response) {
-        res.json(await FeatureNameManager.createMany(req.body.featureNames));
+        res.json(await FeatureNameManager.createMany(req.body));
     }
 
     static async updateById(req: Request, res: Response) {
@@ -25,7 +25,7 @@ export class FeatureNameController {
 
     static async updateMany(req: Request, res: Response) {
 
-        const updated: UpdateResponse = await FeatureNameManager.updateMany(req.body.featureNameFilter, req.body.featureName);
+        const updated: UpdateResponse = await FeatureNameManager.updateMany(req.query, req.body);
 
         if (updated.n === 0) {
             throw new FeatureNameNotFoundError();
