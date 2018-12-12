@@ -1,8 +1,16 @@
 import { IFeatureName } from './FEATURE_NAME.interface';
 // <MongoDB>
 import { FeatureNameRepository } from './FEATURE_NAME.repository';
+// </MongoDB>
 
-export class FeatureNameManager implements FeatureNameRepository {
+export class FeatureNameManager {
+
+    // !<MongoDB>
+    static async create_REMOVE/*MongoDB*/(featureName: IFeatureName) {
+        return { created: featureName.property };
+    }
+    // !</MongoDB>
+    // <MongoDB>
     static create(featureName: IFeatureName) {
         return FeatureNameRepository.create(featureName);
     }
@@ -38,12 +46,5 @@ export class FeatureNameManager implements FeatureNameRepository {
     static getAmount(featureNameFilter: Partial<IFeatureName>) {
         return FeatureNameRepository.getAmount(featureNameFilter);
     }
+    // </MongoDB>
 }
-// </MongoDB>
-// !<MongoDB>
-export class FeatureNameManager_REMOVE/*MongoDB*/ {
-    static async create(featureName: IFeatureName) {
-        return { created: featureName.property };
-    }
-}
-// !</MongoDB>
