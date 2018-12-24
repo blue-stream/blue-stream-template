@@ -1,14 +1,7 @@
 // <RabbitMQ>
 import * as rabbit from '../utils/rabbit';
 
-export class FeatureNameBroker {
-
-    public static async publish(exchange: string,
-                                routingKey: string,
-                                message: any) {
-        rabbit.publish('application', routingKey, message);
-    }
-
+export class FeatureNameSubscribeBroker {
     public static async subscribe() {
         rabbit.subscribe(
         'application',
@@ -17,6 +10,5 @@ export class FeatureNameBroker {
         'sourceMicroserivce.entity.action.status',
         async (data: any) => { console.log(`got this message: ${data}`); });
     }
-
 }
 // </RabbitMQ>

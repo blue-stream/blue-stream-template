@@ -10,7 +10,7 @@ import { config } from './config';
 import { syslogSeverityLevels } from 'llamajs';
 
 // <RabbitMQ>
-import { FeatureNameBroker } from './FEATURE_NAME/FEATURE_NAME.broker';
+import { FeatureNameSubscribeBroker } from './FEATURE_NAME/FEATURE_NAME.broker.subscribe';
 // </RabbitMQ>
 
 process.on('uncaughtException', (err) => {
@@ -61,7 +61,7 @@ process.on('SIGINT', async () => {
 
     // <RabbitMQ>
     await rabbit.connect();
-    await FeatureNameBroker.subscribe();
+    await FeatureNameSubscribeBroker.subscribe();
     // </RabbitMQ>
 
     console.log('Starting server');
