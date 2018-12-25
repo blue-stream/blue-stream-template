@@ -5,7 +5,7 @@ export class FeatureNamePublishBroker {
     public static async publish(exchange: string,
                                 routingKey: string,
                                 message: any) {
-        rabbit.publish(exchange, routingKey, message);
+        rabbit.publish(exchange, 'topic', routingKey, message);
     }
 }
 // </RabbitMQ>
